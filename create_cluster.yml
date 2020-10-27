@@ -1,0 +1,10 @@
+---
+# file: create_cluster.yml
+- hosts: assisted_service
+  connection: local
+  gather_facts: True
+  roles:
+    - create_cluster
+  vars:
+    - create: True
+    - secure: False

@@ -1,0 +1,47 @@
+---
+# tasks file for create_cluster
+
+#- name: Pause play until a URL is reachable from this host
+#  uri:
+#    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
+#    follow_redirects: none
+#    method: GET
+#  register: _result
+#  until: _result.status == 200
+#  retries: 720 # 720 * 5 seconds = 1hour (60*60/5)
+#  delay: 5 # Every 5 seconds
+
+- name: Get clusters
+  uri:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
+    method: GET
+    status_code: [200, 201]
+    return_content: True
+  when: create|bool == False
+  register: http_reply
+
+- debug: 
+    msg: 
+      - "Cluster: {{ item.name }}"
+      - "Cluster ID: {{ item.id }}"
+  loop: "{{ http_reply.json }}"
+  when: create|bool == False
+
+- name: Create cluster
+  uri:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
+    method: POST
+    url_username: "{{ HTTP_AUTH_USERNAME }}"
+    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    body_format: json
+    status_code: [201]
+    return_content: True
+    body: { "name": "{{ CLUSTER_NAME }}", "openshift_version": "{{ OPENSHIFT_VERSION }}", "base_dns_domain": "{{ BASE_DNS_DOMAIN }}", "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}", "cluster_network_host_prefix": "{{ CLUSTER_NETWORK_HOST_PREFIX }}", "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}", "ingress_vip": "{{ INGRESS_VIP }}", "pull_secret": "{{ PULL_SECRET | to_json }}", "ssh_public_key": "{{ SSH_PUBLIC_KEY }}", "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}", "http_proxy": "{{ HTTP_PROXY }}", "https_proxy": "{{ HTTPS_PROXY }}", "no_proxy": "{{ NO_PROXY }}" }
+  when: create|bool == True
+  register: http_reply
+  delegate_to: localhost
+  
+- debug: 
+    var: http_reply.json
+  when: create|bool == True
+
