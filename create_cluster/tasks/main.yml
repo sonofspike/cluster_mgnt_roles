@@ -39,9 +39,12 @@
     body: { "name": "{{ CLUSTER_NAME }}", "openshift_version": "{{ OPENSHIFT_VERSION }}", "base_dns_domain": "{{ BASE_DNS_DOMAIN }}", "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}", "cluster_network_host_prefix": "{{ CLUSTER_NETWORK_HOST_PREFIX }}", "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}", "ingress_vip": "{{ INGRESS_VIP }}", "pull_secret": "{{ PULL_SECRET | to_json }}", "ssh_public_key": "{{ SSH_PUBLIC_KEY }}", "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}", "http_proxy": "{{ HTTP_PROXY }}", "https_proxy": "{{ HTTPS_PROXY }}", "no_proxy": "{{ NO_PROXY }}" }
   when: create|bool == True
   register: http_reply
-  delegate_to: localhost
   
 - debug: 
     var: http_reply.json
   when: create|bool == True
 
+- name: Set the cluster ID
+  set_fact:
+    CLUSTER_ID: "{{ http_reply.json.id }}"
+  when: create|bool == True

@@ -5,6 +5,17 @@
   gather_facts: True
   roles:
     - create_cluster
+    - generate_iso
   vars:
     - create: True
     - secure: False
+    - generate: True
+    - download: True
+    - upload: False
+    - CLUSTER_NAME: "test"
+    - BASE_DNS_DOMAIN: "ran.local"
+    - ASSISTED_INSTALL_HOST: "10.198.6.70"
+    - ASSISTED_INSTALL_PORT: 8090
+    - HTTP_STORE_HOST: "10.198.6.70"
+    - HTTP_STORE_PORT: 8877
+#    - CLUSTER_ID: 8ec8170a-dc8b-4d90-9b84-305d0b4328a4

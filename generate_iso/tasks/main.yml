@@ -1,0 +1,43 @@
+---
+# tasks file for generate_iso
+
+- name: Create a new discovery ISO
+  uri:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS_DOWNLOAD_IMAGE }}"
+    method: POST
+    url_username: "{{ HTTP_AUTH_USERNAME }}"
+    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    body_format: json
+    status_code: [201]
+    return_content: True
+    body: { "ssh_public_key": "{{ SSH_PUBLIC_KEY }}" }
+  when: generate|bool == True
+  register: http_reply
+  
+- debug:
+    var: http_reply.json
+  when: generate|bool == True
+
+- name: Download discovery ISO
+  get_url:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS_DOWNLOAD_IMAGE }}"
+    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
+  when: download|bool == True
+  register: http_reply
+
+- debug:
+    var: http_reply.status_code
+  when: download|bool == True
+
+- name: Upload discovery ISO
+  uri:
+    url: "{{ URL_HTTP_STORE_UPLOAD_IMAGE }}/{{ CLUSTER_ID }}.iso"
+    method: PUT
+    src: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
+    status_code: [200]
+  when: upload|bool == True
+  register: http_reply
+
+- debug:
+    var: http_reply.status_code
+  when: upload|bool == True
