@@ -33,6 +33,8 @@
   uri:
     url: "{{ URL_HTTP_STORE_UPLOAD_IMAGE }}/{{ CLUSTER_ID }}.iso"
     method: PUT
+    url_username: "{{ HTTP_STORE_AUTH_USERNAME }}"
+    url_password: "{{ HTTP_STORE_AUTH_PASSWORD }}"
     src: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
     status_code: [200]
   when: upload|bool == True

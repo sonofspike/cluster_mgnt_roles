@@ -1,0 +1,61 @@
+---
+# tasks file for generate_rwn_iso
+
+- name: Create temporary download directory
+  file:
+    path: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}"
+    state: directory
+
+- name: Download rhcos live iso file
+  get_url:
+    url: "{{ URL_MIRROR_DOWNLOAD_RHCOS_LIVE_ISO }}"
+    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/rhcos-live.x86_64.iso"
+  when: download|bool == True
+  register: http_reply
+
+- debug:
+     var: http_reply.status_code
+  when: download|bool == True
+
+- name: Get worker ignition file
+  get_url:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTER_DOWNLOAD_FILES }}?file_name=worker.ign"
+    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/worker.ign"
+  register: http_reply
+
+- debug:
+    var: http_reply
+
+- name: Load worker igntion file content
+  slurp:
+    src: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/worker.ign"
+  register: WORKER_IGNITION_FILE
+
+- debug:
+    msg: "{{ WORKER_IGNITION_FILE['content'] | b64decode }}"
+
+- name: Load first boot script file content
+  set_fact: 
+    BOOT_ISO_SCRIPT: "{{ lookup('file', 'live-iso.sh') | string | b64encode(encoding='utf-8') }}"
+
+- name: Create ISO ignition file after passing validation
+  template:
+    src: iso.ign.j2
+    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/iso.ign"
+    validate: python3 -mjson.tool %s
+
+- name: Generate iso file
+  containers.podman.podman_container:
+    name: coreos-installer
+    image: quay.io/coreos/coreos-installer:release
+    command: iso ignition embed -fi /data/iso.ign -o /data/worker.iso /data/rhcos-live.x86_64.iso
+    state: present
+    rm: yes
+    recreate: no
+    privileged: yes
+    env_host: yes
+    volumes:
+      - /dev:/dev
+      - /run/udev:/run/udev
+      - "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}:/data"
+  when: generate|bool == True

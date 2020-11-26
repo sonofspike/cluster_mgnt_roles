@@ -1,0 +1,14 @@
+---
+# file: generate_rwn_iso.yml
+- hosts: kaloom-infra
+  roles:
+    - generate_rwn_iso
+  vars:
+    - download: False
+    - secure: False
+    - generate: True
+    - ASSISTED_INSTALL_HOST: "10.198.6.70"
+    - ASSISTED_INSTALL_PORT: 8090
+    - CLUSTER_ID: d1c1bec8-b675-4038-b426-87d9cf2e93a5
+    - CLUSTER_NAME: ldc-griffintown
+    - SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDKl+eFrqE1U3vKeE+Zj2JKwSyFA9WwY+Pb12z9/d12m1Dk3AI7TU6fC7YoD0QqA/yLGoe9XK+oLQicc7lz2406S2IKDGt+PxtINtsGrhw8PjLubWZ72KcFaDltTE1U7dumVeNKxG4i9DGumXupGpj0c1EJNka/nFdEhyiVISPS5Q== root@infra"
