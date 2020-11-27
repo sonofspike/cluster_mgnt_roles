@@ -1,0 +1,13 @@
+---
+# file: configure_cluster.yml
+- hosts: rhpool-infra
+  roles:
+    - configure_cluster
+  vars:
+    - secure: False
+    - debug: True
+    - ASSISTED_INSTALL_HOST: "10.1.196.40"
+    - ASSISTED_INSTALL_PORT: 8090
+    - CLUSTER_ID: 922e492c-f9c3-4ac6-aff2-be7d8b388e45
+    - NODEIP_PROJECT_NAME: "son-of-spike"
+

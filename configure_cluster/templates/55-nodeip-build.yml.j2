@@ -1,0 +1,29 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: nodeip
+  namespace: {{ NODEIP_PROJECT_NAME }}
+  labels:
+    app: nodeip
+    app.kubernetes.io/component: nodeip
+    app.kubernetes.io/part-of: {{ NODEIP_PROJECT_NAME }}
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'nodeip:latest'
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/sonofspike/nodeip.git'
+    contextDir: /
+  triggers:
+    - type: ConfigChange
+  runPolicy: Serial

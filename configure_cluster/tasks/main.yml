@@ -1,0 +1,120 @@
+---
+# tasks file for configure_cluster
+
+- name: Get clusters credential
+  uri:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTER_CREDENTIALS }}"
+    method: GET
+    status_code: [200]
+    return_content: True
+  register: http_reply
+
+- debug: 
+    msg: 
+      - "Cluster username: {{ http_reply.json.username }}"
+      - "Cluster password: {{ http_reply.json.password }}"
+  when: debug|bool == True
+
+- name: Set cluster credentials
+  set_fact: 
+    cluster_username: "{{ http_reply.json.username }}"
+    cluster_password: "{{ http_reply.json.password }}"
+
+- name: Get cluster API virtual IP address
+  uri:
+    url: "{{ URL_ASSISTED_INSTALL_CLUSTER }}"
+    method: GET
+    status_code: [200]
+    return_content: True
+  register: http_reply
+
+- debug: 
+    msg: 
+      - "Cluster api vip: {{ http_reply.json[0].api_vip }}"
+  when: debug|bool == True
+
+- name: Set cluster API properties
+  set_fact: 
+    cluster_api_vip: "{{ http_reply.json[0].api_vip }}"
+    cluster_api_url: "https://api.{{ http_reply.json[0].name }}.{{ http_reply.json[0].base_dns_domain }}:6443"
+
+- name: Obtain cluster access token
+  community.kubernetes.k8s_auth:
+    host: "{{ cluster_api_url }}"
+    username: "{{ cluster_username }}"
+    password: "{{ cluster_password }}"
+    validate_certs: no
+  register: k8s_auth_results
+
+- debug: 
+    msg: 
+      - "Cluster access token: {{ k8s_auth_results.k8s_auth.api_key }}"
+  when: debug|bool == True
+
+- name: Create nodeIP project
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "project.openshift.io/v1"
+    validate_certs: no
+    state: present
+    kind: Project
+    name: "{{ NODEIP_PROJECT_NAME }}"
+
+- name: Apply nodeIP image stream
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "image.openshift.io/v1"
+    validate_certs: no
+    state: present
+    kind: ImageStream
+    resource_definition:
+      metadata:
+        name: nodeip
+        namespace: "{{ NODEIP_PROJECT_NAME }}"
+
+- name: Apply nodeIP build config
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "build.openshift.io/v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', '55-nodeip-build.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
+- name: Apply remote machine config
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "machineconfiguration.openshift.io/v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', '55-remote-worker-mc.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
+- name: Apply remote machine config pool
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "machineconfiguration.openshift.io/v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', '55-remote-worker-mcp.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
+- name: Revoke cluster access token
+  when: k8s_auth_results.k8s_auth.api_key is defined
+  community.kubernetes.k8s_auth:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    validate_certs: no
+    state: absent
+

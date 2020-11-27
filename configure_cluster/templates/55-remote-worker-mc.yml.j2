@@ -1,0 +1,66 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 55-remote-worker-mc
+  labels:
+    machineconfiguration.openshift.io/role: remote-worker
+spec:
+    config:
+      ignition:
+        version: 3.1.0
+      systemd:
+        units:
+          - contents: |
+              [Unit]
+              Description=Writes IP address configuration so that kubelet and crio services select a valid node IP
+              # This only applies to VIP managing environments where the kubelet and crio IP
+              # address picking logic is flawed and may end up selecting an address from a
+              # different subnet or a deprecated address
+              # This will only work for IPv4 right now .... when I get an IPv6
+              # setup going, we will add that into the mix.
+              Wants=network-online.target
+              After=network-online.target ignition-firstboot-complete.service
+              Before=kubelet.service crio.service
+
+              [Service]
+              # Need oneshot to delay kubelet
+              Type=oneshot
+              # Would prefer to do Restart=on-failure instead of this bash retry loop, but
+              # the version of systemd we have right now doesn't support it. It should be
+              # available in systemd v244 and higher.
+              ExecStart=/bin/bash -c " \
+                until \
+                /usr/bin/podman run --rm \
+                --net=host \
+                --volume /etc/systemd/system:/etc/systemd/system:z \
+                nodeip:latest \
+                /nodeip.sh \
+                {{ cluster_api_vip }}; \
+                do \
+                sleep 5; \
+                done"
+
+              [Install]
+              WantedBy=multi-user.target
+            enabled: true
+            name: nodeip-configuration.service
+      storage:
+        files:
+          - contents:
+              source: data:,
+              verification: {}
+            filesystem: root
+            mode: 420
+            path: /etc/kubernetes/manifests/coredns.yaml
+          - contents:
+              source: data:,
+              verification: {}
+            filesystem: root
+            mode: 420
+            path: /etc/kubernetes/manifests/keepalived.yaml
+          - contents:
+              source: data:,
+              verification: {}
+            filesystem: root
+            mode: 420
+            path: /etc/kubernetes/manifests/mdns-publisher.yaml
