@@ -1,0 +1,12 @@
+[Unit]
+Description=Writes IP address configuration so that kubelet and crio services select a valid node IP
+Wants=network-online.target
+After=network-online.target ignition-firstboot-complete.service
+Before=kubelet.service crio.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "until /usr/bin/podman run --rm --authfile /var/lib/kubelet/config.json --net=host --volume /etc/systemd/system:/etc/systemd/system:z quay.io/xphyr/sdn-nodeip:latest /nodeip.sh {{ cluster_api_vip }}; do sleep 5; done"
+
+[Install]
+WantedBy=multi-user.target

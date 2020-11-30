@@ -4,10 +4,12 @@
 generate: True
 download: True
 secure: False
+debug: False
 
 ASSISTED_INSTALL_HOST: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 ASSISTED_INSTALL_PORT: 8090
 ASSISTED_INSTALL_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ ASSISTED_INSTALL_HOST }}:{{ ASSISTED_INSTALL_PORT }}/api/assisted-install/v1"
+URL_ASSISTED_INSTALL_CLUSTER: "{{ ASSISTED_INSTALL_BASE_URL }}/clusters/{{ CLUSTER_ID }}"
 URL_ASSISTED_INSTALL_CLUSTER_DOWNLOAD_FILES: "{{ ASSISTED_INSTALL_BASE_URL }}/clusters/{{ CLUSTER_ID }}/downloads/files"
 
 

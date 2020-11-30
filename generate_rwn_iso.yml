@@ -4,11 +4,11 @@
   roles:
     - generate_rwn_iso
   vars:
-    - download: False
+    - download: True
     - secure: False
     - generate: True
-    - ASSISTED_INSTALL_HOST: "10.198.6.70"
+    - ASSISTED_INSTALL_HOST: "172.16.61.40"
     - ASSISTED_INSTALL_PORT: 8090
-    - CLUSTER_ID: d1c1bec8-b675-4038-b426-87d9cf2e93a5
-    - CLUSTER_NAME: ldc-griffintown
-    - SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDKl+eFrqE1U3vKeE+Zj2JKwSyFA9WwY+Pb12z9/d12m1Dk3AI7TU6fC7YoD0QqA/yLGoe9XK+oLQicc7lz2406S2IKDGt+PxtINtsGrhw8PjLubWZ72KcFaDltTE1U7dumVeNKxG4i9DGumXupGpj0c1EJNka/nFdEhyiVISPS5Q== root@infra"
+    - CLUSTER_ID: "922e492c-f9c3-4ac6-aff2-be7d8b388e45"
+    - CLUSTER_NAME: "mgmt"
+    - SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuACGw0L6121jb1BGESjCSD8PRPzMKDPyGJVxFbFjWlg4PyYhOJ9OPWON2vKrcylpN16nui0q6Yz350vaO8qAJlOymNjyT/EoL+2+IwAVQ6uqg+4e+SYRfHaSBsPYdneKzuJYcmQNtEUbWkCB7MClGeEYOqO8ViR7ejobkwOh7O0HG2ONL8JHHeOX8nBUJQ7FbwrTBIaaiFr+wanPJyz/Vaeh30DjgCpYmPRPM5PWhDbw67kuromzXd+UWRvUEy1hDTf+NlbTjozbXEx0EfL6H1JadBUG5c0PlAuv8AljfZKLJ146SYuoigdLMn7bSguAI/0rxT6PEzJBJP9UKfitNOeVJUW+wNkdMn+h/KZMc2jG+9nw9n44+zp/Rlq1/bi3WIQD3Xkfe9FMw3/x8KdXAndoJ+GK1oQ21f3rE4ZAw5bc88TxJaGKNqkh8CD90PEvXBBhKr0OhCZCG4fhY+9VNQfCWsel5CNQY0NMOe6yHDQ4FHcB6yPhXY5zXroGvJts= root@provisioning"
