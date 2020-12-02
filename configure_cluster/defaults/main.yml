@@ -10,3 +10,9 @@ URL_ASSISTED_INSTALL_CLUSTER_CREDENTIALS: "{{ ASSISTED_INSTALL_BASE_URL }}/clust
 URL_MIRROR_DOWNLOAD_RHCOS_LIVE_ISO: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/latest/latest/rhcos-live.x86_64.iso
 
 NODEIP_PROJECT_NAME: "son-of-spike"
+
+AUTORULES_PROJECT_NAME: "autorules"
+AUTORULES_MATCH_RULE: ".*remote.*"
+AUTORULES_MATCH_ROLE: "remote-worker"
+
+

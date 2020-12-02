@@ -61,7 +61,7 @@
     kind: Project
     name: "{{ NODEIP_PROJECT_NAME }}"
 
-- name: Apply nodeIP image stream
+- name: Create nodeIP image stream
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -74,7 +74,7 @@
         name: nodeip
         namespace: "{{ NODEIP_PROJECT_NAME }}"
 
-- name: Apply nodeIP build config
+- name: Create nodeIP build config
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -86,7 +86,7 @@
       fail_on_error: no
       strict: yes
 
-- name: Apply remote machine config
+- name: Create remote machine config
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -98,7 +98,7 @@
       fail_on_error: no
       strict: yes
 
-- name: Apply remote machine config pool
+- name: Create remote machine config pool
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -109,6 +109,53 @@
     validate:
       fail_on_error: no
       strict: yes
+
+- name: Create autorules project
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "project.openshift.io/v1"
+    validate_certs: no
+    state: present
+    kind: Project
+    name: "{{ AUTORULES_PROJECT_NAME }}"
+
+- name: Create autorules config map 
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'autorules_configmap.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
+- name: Create autorules role binding 
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "rbac.authorization.k8s.io/v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'autorules_rbac.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
+- name: Apply autorules deployment 
+  community.kubernetes.k8s:
+    host: "{{ cluster_api_url }}"
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    api_version: "apps/v1"
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'autorules_deployment.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: no
+      strict: yes
+
 
 - name: Revoke cluster access token
   when: k8s_auth_results.k8s_auth.api_key is defined

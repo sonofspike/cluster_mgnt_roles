@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoruler
+  namespace: {{ AUTORULES_PROJECT_NAME }}
+  labels:
+    app: autoruler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autoruler
+  template:
+    metadata:
+      labels:
+        app: autoruler
+    spec:
+      containers:
+      - name: autosigner
+        image: quay.io/karmab/autosigner:latest
+      - name: autolabeller
+        image: quay.io/karmab/autolabeller:latest
