@@ -6,7 +6,7 @@ Before=kubelet.service crio.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c "until /usr/bin/podman run --rm --authfile /var/lib/kubelet/config.json --net=host --volume /etc/systemd/system:/etc/systemd/system:z quay.io/xphyr/sdn-nodeip:latest /nodeip.sh {{ cluster_api_vip }}; do sleep 5; done"
+ExecStart=/bin/bash -c "until /usr/bin/podman run --rm --authfile /var/lib/kubelet/config.json --net=host --volume /etc/systemd/system:/etc/systemd/system:z quay.io/hgarciag/nodeip:latest /nodeip.sh {{ cluster_api_vip }}; do sleep 5; done"
 
 [Install]
 WantedBy=multi-user.target

@@ -40,46 +40,62 @@
   set_fact:
     cluster_api_vip: "{{ http_reply.json.api_vip }}"
 
-- name: Download worker ignition file content
+- name: Slurp worker ignition file
   slurp:
     src: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/worker.ign"
   register: worker_ignition_file
 
-- name: Load decoded worker ignition file
+- name: Decode worker ignition file content
   set_fact:
     worker_ignition_decoded: "{{ worker_ignition_file['content'] | b64decode }}"
 
 - debug:
     msg: "{{ worker_ignition_decoded }}"
   when: debug|bool == True
-
-- name: Load override script for nodeip configuration service
+  
+- debug:
+    msg: "{{ worker_ignition_decoded.ignition.config.merge[0].source }}"
+  when: debug|bool == True
+  
+- name: Extract the source
   set_fact:
-    nodeip_config_service: "{{ lookup('template', 'nodeip-configuration.service.j2') | string | b64encode }}"
+   worker_ignition_config_source: "{{ worker_ignition_decoded.ignition.config.merge[0].source | replace( '/worker', '' ) }}"
 
 - debug:
-    var: nodeip_config_service
+    var: worker_ignition_config_source
   when: debug|bool == True
 
-- name: Load override ignition for nodeip configuration service
+- name: Load new worker ignition config source
   set_fact:
-    nodeip_config_ignition: "{{ lookup('template', 'nodeip-configuration.ignition.j2')}}"
+    patch_ignition_config_source: "{{ lookup('template', 'worker.ignition.j2') }}"
 
-- debug:
-    var: nodeip_config_ignition
-  when: debug|bool == True
-
-- name: Combine override nodeip configuration service with worker ignition file
+- name: Override worker ignition config source
   set_fact:
-    worker_ignition_file: "{{ worker_ignition_decoded | combine ( nodeip_config_ignition ) | to_json | b64encode(encoding='utf-8') }}"
-#    worker_ignition_file: "{{ worker_ignition_decoded | combine ( nodeip_config_ignition ) | string | b64encode(encoding='utf-8')}}"
+    worker_ignition_file: "{{ worker_ignition_decoded | combine ( patch_ignition_config_source, recursive=True ) | to_json | b64encode(encoding='utf-8') }}"
+
+# - name: Load override script for nodeip configuration service
+#   set_fact:
+#     nodeip_config_service: "{{ lookup('template', 'nodeip-configuration.service.j2') }}"
+#
+# - debug:
+#     var: nodeip_config_service
+#   when: debug|bool == True
+
+# - name: Load override ignition for nodeip configuration service
+#   set_fact:
+#     nodeip_config_ignition: "{{ lookup('template', 'nodeip-configuration.ignition.j2')}}"
+#
+# - debug:
+#     var: nodeip_config_ignition
+#   when: debug|bool == True
+
+# - name: Combine override nodeip configuration service with worker ignition file
+#   set_fact:
+#     worker_ignition_file: "{{ worker_ignition_decoded | combine ( nodeip_config_ignition ) | to_json | b64encode(encoding='utf-8') }}"
 
 - debug:
     var: worker_ignition_file
   when: debug|bool == True
-
-#- debug:
-#    msg: "{{ worker_ignition_file | to_json | b64encode(encoding='utf-8') }}"
 
 - name: Load first boot script file content
   set_fact:

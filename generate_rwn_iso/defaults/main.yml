@@ -12,7 +12,6 @@ ASSISTED_INSTALL_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ ASSISTE
 URL_ASSISTED_INSTALL_CLUSTER: "{{ ASSISTED_INSTALL_BASE_URL }}/clusters/{{ CLUSTER_ID }}"
 URL_ASSISTED_INSTALL_CLUSTER_DOWNLOAD_FILES: "{{ ASSISTED_INSTALL_BASE_URL }}/clusters/{{ CLUSTER_ID }}/downloads/files"
 
-
 HTTP_STORE_HOST: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 HTTP_STORE_PORT: 8888
 URL_HTTP_STORE_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ HTTP_STORE_HOST }}:{{ HTTP_STORE_PORT }}"
@@ -26,4 +25,6 @@ DOWNLOAD_DEST_PATH: "/tmp"
 
 SSH_PUBLIC_KEY: ""
 PASSWORD_HASH: "$1$f9F1p5ap$VIFGF2QHttm6xPeGMh/YA/"
+
+WORKER_CONFIG_ROLE: "remote-worker"
 

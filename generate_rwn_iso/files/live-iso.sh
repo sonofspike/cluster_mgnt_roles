@@ -9,6 +9,10 @@ for vg in $(vgs -o name --noheadings) ; do vgremove -y $vg ; done
 # pvremove wipes the label on a device so that LVM will no longer recognise it as a physical volume
 for pv in $(pvs -o name --noheadings) ; do pvremove -y $pv ; done
 
+#TODO: Wipeout all disks
+#lsblk
+#dd if=/dev/zero of=/dev/sda bs=4M count=3 conv=sync
+
 # use the first block device
 first_block_dev=$(lsblk -lpdn -o NAME | grep [s,v]d[a-z] | head -n1)
 if [[ $first_block_dev ]]; then

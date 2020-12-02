@@ -4,7 +4,7 @@
   roles:
     - generate_rwn_iso
   vars:
-    - download: True
+    - download: False
     - secure: False
     - generate: True
     - debug: True
