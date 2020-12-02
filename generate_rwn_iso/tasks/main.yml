@@ -55,7 +55,7 @@
 
 - name: Load override script for nodeip configuration service
   set_fact:
-    nodeip_config_service: "{{ lookup('template', 'nodeip-configuration.service.j2') | regex_replace('[\n\r]', '\\n', multiline=True) | to_json(ensure_ascii=False) }}"
+    nodeip_config_service: "{{ lookup('template', 'nodeip-configuration.service.j2') | string | b64encode }}"
 
 - debug:
     var: nodeip_config_service
