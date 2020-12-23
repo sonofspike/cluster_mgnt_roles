@@ -12,6 +12,7 @@ cluster_name="ldc-griffintown"
 
 # Contents of the pull-secret.txt file
 pull_secret="{{ lookup('file', './pull_secret.txt') }}"
+ssh_public_key="{{ lookup('file', './ssh_public_key.txt') }}"
 
 # Version of the openshift-installer, undefined or empty results in the playbook failing.
 openshift_version="4.6"
