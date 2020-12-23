@@ -1,19 +1,9 @@
 ---
 # tasks file for create_cluster
 
-#- name: Pause play until a URL is reachable from this host
-#  uri:
-#    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
-#    follow_redirects: none
-#    method: GET
-#  register: _result
-#  until: _result.status == 200
-#  retries: 720 # 720 * 5 seconds = 1hour (60*60/5)
-#  delay: 5 # Every 5 seconds
-
 - name: Get clusters
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
     method: GET
     status_code: [200, 201]
     return_content: True
@@ -29,7 +19,7 @@
 
 - name: Create cluster
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
     method: POST
     url_username: "{{ HTTP_AUTH_USERNAME }}"
     url_password: "{{ HTTP_AUTH_PASSWORD }}"

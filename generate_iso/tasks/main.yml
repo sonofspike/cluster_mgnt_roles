@@ -1,9 +1,9 @@
 ---
 # tasks file for generate_iso
 
-- name: Create a new discovery ISO
+- name: Generate a new discovery ISO
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS_DOWNLOAD_IMAGE }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
     method: POST
     url_username: "{{ HTTP_AUTH_USERNAME }}"
     url_password: "{{ HTTP_AUTH_PASSWORD }}"
@@ -20,7 +20,7 @@
 
 - name: Download discovery ISO
   get_url:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTERS_DOWNLOAD_IMAGE }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
     dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
   when: download|bool == True
   register: http_reply

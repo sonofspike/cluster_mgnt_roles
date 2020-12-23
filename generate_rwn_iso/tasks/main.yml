@@ -19,13 +19,13 @@
 
 - name: Get worker ignition file
   get_url:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTER_DOWNLOAD_FILES }}?file_name=worker.ign"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER_DOWNLOAD_FILES }}?file_name=worker.ign"
     dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/worker.ign"
   register: http_reply
 
 - name: Get cluster API virtual IP address
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTER }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
     status_code: [200]
     return_content: True
@@ -122,3 +122,6 @@
       - /run/udev:/run/udev
       - "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}:/data"
   when: generate|bool == True
+
+#TODO: Verify the iso file was genrated or exit here
+

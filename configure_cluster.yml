@@ -6,8 +6,8 @@
   vars:
     - secure: False
     - debug: True
-    - ASSISTED_INSTALL_HOST: "172.16.61.40"
-    - ASSISTED_INSTALL_PORT: 8090
+    - ASSISTED_INSTALLER_HOST: "172.16.61.40"
+    - ASSISTED_INSTALLER_PORT: 8090
     - CLUSTER_ID: ceaea5d9-0271-4dc9-b088-94ec96b93751
     - NODEIP_PROJECT_NAME: "son-of-spike"
 

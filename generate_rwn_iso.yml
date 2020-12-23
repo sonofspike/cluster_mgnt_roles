@@ -1,6 +1,6 @@
 ---
 # file: generate_rwn_iso.yml
-- hosts: kaloom-infra
+- hosts: rhpool-infra
   roles:
     - generate_rwn_iso
   vars:
@@ -8,8 +8,9 @@
     - secure: False
     - generate: True
     - debug: True
-    - ASSISTED_INSTALL_HOST: "172.16.61.40"
-    - ASSISTED_INSTALL_PORT: 8090
-    - CLUSTER_ID: ceaea5d9-0271-4dc9-b088-94ec96b93751
+    - ASSISTED_INSTALLER_HOST: "172.16.61.40"
+    - ASSISTED_INSTALLER_PORT: 8090
+    - CLUSTER_ID: d673f5ba-7e94-40f7-89b5-4bbe0a1ca50e
     - CLUSTER_NAME: "mgmt"
+    - WORKER_CONFIG_ROLE: "worker"
     - SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuACGw0L6121jb1BGESjCSD8PRPzMKDPyGJVxFbFjWlg4PyYhOJ9OPWON2vKrcylpN16nui0q6Yz350vaO8qAJlOymNjyT/EoL+2+IwAVQ6uqg+4e+SYRfHaSBsPYdneKzuJYcmQNtEUbWkCB7MClGeEYOqO8ViR7ejobkwOh7O0HG2ONL8JHHeOX8nBUJQ7FbwrTBIaaiFr+wanPJyz/Vaeh30DjgCpYmPRPM5PWhDbw67kuromzXd+UWRvUEy1hDTf+NlbTjozbXEx0EfL6H1JadBUG5c0PlAuv8AljfZKLJ146SYuoigdLMn7bSguAI/0rxT6PEzJBJP9UKfitNOeVJUW+wNkdMn+h/KZMc2jG+9nw9n44+zp/Rlq1/bi3WIQD3Xkfe9FMw3/x8KdXAndoJ+GK1oQ21f3rE4ZAw5bc88TxJaGKNqkh8CD90PEvXBBhKr0OhCZCG4fhY+9VNQfCWsel5CNQY0NMOe6yHDQ4FHcB6yPhXY5zXroGvJts= root@provisioning"

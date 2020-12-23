@@ -3,7 +3,7 @@
 
 - name: Get clusters credential
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTER_CREDENTIALS }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER_CREDENTIALS }}"
     method: GET
     status_code: [200]
     return_content: True
@@ -22,7 +22,7 @@
 
 - name: Get cluster API virtual IP address
   uri:
-    url: "{{ URL_ASSISTED_INSTALL_CLUSTER }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
     status_code: [200]
     return_content: True

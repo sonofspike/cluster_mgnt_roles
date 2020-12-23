@@ -4,17 +4,16 @@
   gather_facts: True
   roles:
     - create_cluster
-    - generate_iso
+    - generate_discovery_iso
   vars:
     - create: True
     - secure: False
-    - generate: False
-    - download: False
-    - upload: False
+    - generate: True
+    - download: True
     - CLUSTER_NAME: "mgmt"
     - BASE_DNS_DOMAIN: "pool4.com"
-    - ASSISTED_INSTALL_HOST: "10.198.6.70"
-    - ASSISTED_INSTALL_PORT: 8090
+    - ASSISTED_INSTALLER_HOST: "10.198.6.70"
+    - ASSISTED_INSTALLER_PORT: 8090
     - HTTP_STORE_HOST: "10.198.6.70"
     - HTTP_STORE_PORT: 8877
     - SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuACGw0L6121jb1BGESjCSD8PRPzMKDPyGJVxFbFjWlg4PyYhOJ9OPWON2vKrcylpN16nui0q6Yz350vaO8qAJlOymNjyT/EoL+2+IwAVQ6uqg+4e+SYRfHaSBsPYdneKzuJYcmQNtEUbWkCB7MClGeEYOqO8ViR7ejobkwOh7O0HG2ONL8JHHeOX8nBUJQ7FbwrTBIaaiFr+wanPJyz/Vaeh30DjgCpYmPRPM5PWhDbw67kuromzXd+UWRvUEy1hDTf+NlbTjozbXEx0EfL6H1JadBUG5c0PlAuv8AljfZKLJ146SYuoigdLMn7bSguAI/0rxT6PEzJBJP9UKfitNOeVJUW+wNkdMn+h/KZMc2jG+9nw9n44+zp/Rlq1/bi3WIQD3Xkfe9FMw3/x8KdXAndoJ+GK1oQ21f3rE4ZAw5bc88TxJaGKNqkh8CD90PEvXBBhKr0OhCZCG4fhY+9VNQfCWsel5CNQY0NMOe6yHDQ4FHcB6yPhXY5zXroGvJts= root@provisioning"
