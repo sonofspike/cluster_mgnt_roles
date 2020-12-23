@@ -1,3 +1,69 @@
+[all:vars]
+
+###############################################################################
+# Required configuration variables for Assisted Install Installations         #
+###############################################################################
+
+# Base domain, i.e. example.com
+domain="rdc-mtl.ran.lan"
+
+# Name of the cluster, i.e. openshift
+cluster_name="ldc-griffintown"
+
+# Contents of the pull-secret.txt file
+pull_secret="{{ lookup('file', './pull_secret.txt') }}"
+
+# Version of the openshift-installer, undefined or empty results in the playbook failing.
+openshift_version="4.6"
+
+# Discovery ISO
+#boot_iso="http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043/downloads/image
+boot_iso="http://10.198.6.70:8080/discovery_image_ldc-griffintown.iso"
+
 [assisted_service]
-rhpool-infra ansible_ssh_user=root ansible_ssh_host=10.1.196.40
+kaloom-ais host=10.198.6.70 port=8090
+
+[bastion]
 kaloom-infra ansible_ssh_user=root ansible_ssh_host=10.198.6.70
+#supermicro-infra ansible_ssh_user=ran ansible_ssh_host=172.24.118.250
+#rhpool-infra ansible_ssh_user=root ansible_ssh_host=10.1.196.40
+
+#Options for vendor include: Dell, HPE, SuperMicro, KVM
+# Master nodes
+[masters]
+master0 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+master1 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+master2 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+
+# Worker nodes
+[workers]
+#worker0 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.64 vendor=Lenovo
+#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
+#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.67 vendor=Lenovo
+
+# Name
+# ldc-griffintown
+
+# Base DNS domain
+# rdc-mtl.ran.lan
+
+# Available subnets *
+# 10.198.6.0/24 (10.198.6.1-10.198.6.254)
+
+# API virtual IP
+# 10.198.6.118
+
+# Ingress virtual IP
+# 10.198.6.117
+
+# Cluster network CIDR
+# 10.128.0.0/14
+
+# Cluster network host prefix
+# 23
+
+# Service network CIDR
+# 172.30.0.0/16
+
+#Host SSH Public Key for troubleshooting after installation
+# Use the same host discovery SSH key

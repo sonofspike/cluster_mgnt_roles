@@ -1,0 +1,42 @@
+---
+# tasks file for boot_iso
+
+- fail: 
+    msg="Missing argument: this playbook requires 'boot_iso' to be defined with the URL of the ISO to boot the systems"
+  when: boot_iso is not defined
+
+- include_tasks: dell.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'Dell'
+
+- include_tasks: hpe.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'HPE'
+
+- include_tasks: supermicro.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'SuperMicro'
+
+- include_tasks: lenovo.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'Lenovo'
+
+- include_tasks: vmware.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'VMware'
+
+- include_tasks: kvm.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+  when: hostvars[item]['vendor'] == 'KVM'
