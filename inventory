@@ -10,19 +10,55 @@ domain="rdc-mtl.ran.lan"
 # Name of the cluster, i.e. openshift
 cluster_name="ldc-griffintown"
 
-# Contents of the pull-secret.txt file
-pull_secret="{{ lookup('file', './pull_secret.txt') }}"
+# Base DNS domain
+base_dns_domain="rdc-mtl.ran.lan"
+
+# Available subnets *
+# 10.198.6.0/24 (10.198.6.1-10.198.6.254)
+machine_network_cidr= "10.198.6.0/24"
+
+# Allocate virtual IPs via DHCP server
+vip_dhcp_allocation=False
+
+# API virtual IP
+api_vip="10.198.6.153"
+
+# Ingress virtual IP
+ingress_vip="10.198.6.154"
+
+# Cluster network CIDR
+cluster_network_cidr="10.128.0.0/14"
+
+# Cluster network host prefix
+cluster_network_host_prefix=23
+
+# Service network CIDR
+service_network_cidr="172.30.0.0/16"
+
+#Host SSH Public Key for troubleshooting after installation
+# Use the same host discovery SSH key
 ssh_public_key="{{ lookup('file', './ssh_public_key.txt') }}"
+
+# Load pull-secret file
+pull_secret="{{ lookup('file', './pull_secret.txt') }}"
+
+# Load clsuter file
+cluster_id="{{ lookup('file', './cluster.txt') }}"
 
 # Version of the openshift-installer, undefined or empty results in the playbook failing.
 openshift_version="4.6"
 
 # Discovery ISO
-#boot_iso="http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043/downloads/image
-boot_iso="http://10.198.6.70:8080/discovery_image_ldc-griffintown.iso"
+#discovery_iso_name="http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043/downloads/image
+discovery_iso_name="discovery_image_ldc-griffintown.iso"
+# HTTP server where the ISO is stored
+discovery_iso_server="http://10.198.6.70:8080"
 
 [assisted_service]
 kaloom-ais host=10.198.6.70 port=8090
+
+[http_store]
+kaloom-store host=10.198.6.70 port=8080
 
 [bastion]
 kaloom-infra ansible_ssh_user=root ansible_ssh_host=10.198.6.70
@@ -32,39 +68,16 @@ kaloom-infra ansible_ssh_user=root ansible_ssh_host=10.198.6.70
 #Options for vendor include: Dell, HPE, SuperMicro, KVM
 # Master nodes
 [masters]
-master0 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
-master1 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
-master2 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+#master0 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+#master1 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+#master2 role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
+master0 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.64 vendor=Lenovo
+master1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
+master2 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.66 vendor=Lenovo
 
 # Worker nodes
 [workers]
-#worker0 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.64 vendor=Lenovo
-#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
+#worker0 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
+#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.66 vendor=Lenovo
 #worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.67 vendor=Lenovo
 
-# Name
-# ldc-griffintown
-
-# Base DNS domain
-# rdc-mtl.ran.lan
-
-# Available subnets *
-# 10.198.6.0/24 (10.198.6.1-10.198.6.254)
-
-# API virtual IP
-# 10.198.6.118
-
-# Ingress virtual IP
-# 10.198.6.117
-
-# Cluster network CIDR
-# 10.128.0.0/14
-
-# Cluster network host prefix
-# 23
-
-# Service network CIDR
-# 172.30.0.0/16
-
-#Host SSH Public Key for troubleshooting after installation
-# Use the same host discovery SSH key

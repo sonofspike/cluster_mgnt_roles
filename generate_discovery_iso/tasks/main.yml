@@ -1,5 +1,5 @@
 ---
-# tasks file for generate_iso
+# tasks file for generate_discovery_iso
 
 - name: Generate a new discovery ISO
   uri:
@@ -16,18 +16,18 @@
   
 - debug:
     var: http_reply.json
-  when: generate|bool == True
+  when: debug|bool == True
 
 - name: Download discovery ISO
   get_url:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
-    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
+    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
   when: download|bool == True
   register: http_reply
 
 - debug:
     var: http_reply.status_code
-  when: download|bool == True
+  when: debug|bool == True
 
 - name: Upload discovery ISO
   uri:
@@ -35,11 +35,11 @@
     method: PUT
     url_username: "{{ HTTP_STORE_AUTH_USERNAME }}"
     url_password: "{{ HTTP_STORE_AUTH_PASSWORD }}"
-    src: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}.iso"
+    src: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
     status_code: [200]
   when: upload|bool == True
   register: http_reply
 
 - debug:
     var: http_reply.status_code
-  when: upload|bool == True
+  when: debug|bool == True

@@ -3,7 +3,7 @@
 
 - fail: 
     msg="Missing argument: this playbook requires 'boot_iso' to be defined with the URL of the ISO to boot the systems"
-  when: boot_iso is not defined
+  when: boot_iso_url is not defined
 
 - include_tasks: dell.yml
   with_items:
@@ -28,12 +28,6 @@
     - "{{ groups['masters'] }}"
     - "{{ groups['workers'] | default([]) }}"
   when: hostvars[item]['vendor'] == 'Lenovo'
-
-- include_tasks: vmware.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'VMware'
 
 - include_tasks: kvm.yml
   with_items:

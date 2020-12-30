@@ -1,4 +1,5 @@
 .DS_Store
 pull_secret.txt
 ssh_public_key.txt
+cluster.txt
 __stuff/**

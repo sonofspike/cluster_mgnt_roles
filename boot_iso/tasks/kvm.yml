@@ -51,18 +51,21 @@
         password: "{{ hostvars[item]['bmc_password'] }}"
         method: POST
         body_format: json
-        body: {"Image":"{{ boot_iso }}", "Inserted": true}
+        body: {"Image":"{{ boot_iso_url }}", "Inserted": true}
         status_code: [200, 204]
         force_basic_auth: no
         validate_certs: no
         return_content: yes
       register: redfish_reply
+      until: "redfish_reply.status == 204"
+      retries: 20
+      delay: 30
 
     - debug:
         var: redfish_reply
       when: debug|bool == True
 
-    - name: Verify Virtual Media
+    - name: KVM Verify Virtual Media
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_manager }}/VirtualMedia/Cd"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -78,7 +81,7 @@
         var: redfish_reply
       when: debug|bool == True
 
-    - name: Set KVM OneTimeBoot Virtual Media
+    - name: KVM Set OneTimeBoot Virtual Media
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -96,7 +99,23 @@
         var: redfish_reply
       when: debug|bool == True
 
-    - name: Restart system power gracefully
+    - name: KVM Verify System Power State
+      uri:
+        url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
+        user: "{{ hostvars[item]['bmc_user'] }}"
+        password: "{{ hostvars[item]['bmc_password'] }}"
+        method: GET
+        status_code: [200, 201]
+        validate_certs: no
+        return_content: yes
+      register: redfish_reply
+      when: debug|bool == True
+
+    - debug:
+        var: redfish_reply
+      when: debug|bool == True
+
+    - name: KVM Force Restart System
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}/Actions/ComputerSystem.Reset"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -108,10 +127,56 @@
         force_basic_auth: no
         validate_certs: no
         return_content: yes
+      register: redfish_restart
+      when: redfish_reply.json.PowerState == "On"
+
+    - name: KVM Force Power On System
+      uri:
+        url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}/Actions/ComputerSystem.Reset"
+        user: "{{ hostvars[item]['bmc_user'] }}"
+        password: "{{ hostvars[item]['bmc_password'] }}"
+        method: POST
+        body_format: json
+        body: {"ResetType":"ForceOn"}
+        status_code: [200, 204]
+        force_basic_auth: no
+        validate_certs: no
+        return_content: yes
+      register: redfish_poweron
+      when: redfish_reply.json.PowerState == "Off"
+
+    - name: Pause for 30 seconds to allow the system to boot
+      pause:
+        seconds: 30
+
+    - name: KVM Verify System Power State is On
+      uri:
+        url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
+        user: "{{ hostvars[item]['bmc_user'] }}"
+        password: "{{ hostvars[item]['bmc_password'] }}"
+        method: GET
+        status_code: [200, 201]
+        validate_certs: no
+        return_content: yes
+      register: redfish_reply
+      until: redfish_reply.json.PowerState == "On"
+      retries: 3
+      delay: 30
+
+    - name: KVM Set Next Boot from HDD
+      uri:
+        url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
+        user: "{{ hostvars[item]['bmc_user'] }}"
+        password: "{{ hostvars[item]['bmc_password'] }}"
+        method: PATCH
+        body_format: json
+        body: {"Boot":{"BootSourceOverrideTarget":"Hdd","BootSourceOverrideMode":"UEFI","BootSourceOverrideEnabled":"Continuous"}}
+        status_code: [200, 204]
+        force_basic_auth: no
+        validate_certs: no
+        return_content: yes
       register: redfish_reply
 
     - debug:
         var: redfish_reply
       when: debug|bool == True
-
-

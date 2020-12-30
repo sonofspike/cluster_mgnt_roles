@@ -20,5 +20,5 @@
         host: "{{ hostvars[item]['bmc_address'] }}"
         login: "{{ hostvars[item]['bmc_user'] }}"
         password: "{{ hostvars[item]['bmc_password'] }}"
-        image: "http://{{ groups['assisted_installer'][0] }}:8080/installer-image.iso"
+        image: "{{ boot_iso_url }}"
         media: cdrom

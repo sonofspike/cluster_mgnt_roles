@@ -1,13 +1,13 @@
 ---
 # tasks file for create_cluster
 
-- name: Get clusters
+- name: List clusters
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
     method: GET
     status_code: [200, 201]
     return_content: True
-  when: create|bool == False
+  when: create|bool == True
   register: http_reply
 
 - debug: 
@@ -15,8 +15,9 @@
       - "Cluster: {{ item.name }}"
       - "Cluster ID: {{ item.id }}"
   loop: "{{ http_reply.json }}"
-  when: create|bool == False
+  when: create|bool == True
 
+# TODO: use the variable for cluster_network_host_prefix
 - name: Create cluster
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
@@ -26,15 +27,50 @@
     body_format: json
     status_code: [201]
     return_content: True
-    body: { "name": "{{ CLUSTER_NAME }}", "openshift_version": "{{ OPENSHIFT_VERSION }}", "base_dns_domain": "{{ BASE_DNS_DOMAIN }}", "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}", "cluster_network_host_prefix": "{{ CLUSTER_NETWORK_HOST_PREFIX }}", "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}", "ingress_vip": "{{ INGRESS_VIP }}", "pull_secret": "{{ PULL_SECRET | to_json }}", "ssh_public_key": "{{ SSH_PUBLIC_KEY }}", "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}", "http_proxy": "{{ HTTP_PROXY }}", "https_proxy": "{{ HTTPS_PROXY }}", "no_proxy": "{{ NO_PROXY }}" }
+    body: {
+        "name": "{{ CLUSTER_NAME }}",
+        "openshift_version": "{{ OPENSHIFT_VERSION }}",
+        "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
+        "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
+        "cluster_network_host_prefix": 23,
+        "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
+        "ingress_vip": "{{ INGRESS_VIP }}",
+        "pull_secret": "{{ PULL_SECRET | to_json }}",
+        "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
+        "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+        "api_vip": "{{ API_VIP }}",
+        "http_proxy": "{{ HTTP_PROXY }}",
+        "https_proxy": "{{ HTTPS_PROXY }}",
+        "no_proxy": "{{ NO_PROXY }}"
+    }
   when: create|bool == True
   register: http_reply
   
 - debug: 
     var: http_reply.json
-  when: create|bool == True
+  when: debug|bool == True
 
 - name: Set the cluster ID
   set_fact:
     CLUSTER_ID: "{{ http_reply.json.id }}"
+  when: create|bool == True
+
+# Show cluster information
+- name: List clusters
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
+    method: GET
+    status_code: [200, 201]
+    return_content: True
+  when: create|bool == True
+  register: http_reply
+
+- debug: 
+    msg: 
+      - "Cluster: {{ item.name }}"
+      - "Cluster ID: {{ item.id }}"
+  loop: "{{ http_reply.json }}"
+  when: create|bool == True
+
+- local_action: copy content={{ CLUSTER_ID }} dest=cluster.txt
   when: create|bool == True

@@ -3,12 +3,40 @@
 
 # TODO: Validate cluster settings
 
-# Monitor cluster discovery 
+# Monitor hosts discovery
+- name: Wait for 20 min until the hosts are discovered
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    method: GET
+    status_code: [200, 201]
+    return_content: True
+  register: cluster
+  until: "cluster.json.host_networks[0].cidr is defined"
+  retries: 20
+  delay: 60
+  when: install|bool == True
 
-# curl -L http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043
-# "status": "pending-for-input",
-# "status_info": "User input required"
+# Patch the cluster with the API Virtual IP
+- name: Patch cluster with API Virtual IP
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    method: PATCH
+    status_code: [201]
+    return_content: True
+    body_format: json
+    body: {
+        "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+        "ingress_vip": "{{ INGRESS_VIP }}",
+        "api_vip": "{{ API_VIP }}"
+    }
+  when: install|bool == True
+  register: http_reply
+  
+- debug: 
+    var: http_reply.json
+  when: debug|bool == True
 
+# Monitor cluster discovery
 - name: Wait for 20 min until the cluster is ready
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
@@ -21,23 +49,15 @@
   delay: 60
   when: install|bool == True
 
-# curl -L http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043
-# "status": "ready",
-# "status_info": "Cluster ready to be installed"
-
-# /clusters/{cluster_id}/actions/install
-#curl -L http://10.198.6.70:8888/api/assisted-install/v1/clusters/fb8858c6-0936-4de4-a234-cca860983043/actions/install -X POST
-#{"code":"409","href":"","id":409,"kind":"Error","reason":"Cluster is not ready for installation, User input required"}
-
 # Install cluster
 - name: Install cluster
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/actions/install"
     method: POST
-    body_format: json
-    body: { }
     status_code: [202]
     return_content: True
+    body_format: json
+    body: { }
   when: install|bool == True
   register: http_reply
   
@@ -46,7 +66,6 @@
   when: debug|bool == True and install|bool == True
 
 # Monitor cluster installation 
-
 - name: Wait for 60 min until the cluster is installed
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
@@ -54,12 +73,16 @@
     status_code: [200, 201]
     return_content: True
   register: cluster
-  until: "cluster.json.status == 'installed' or cluster.json.status == 'error'"
+  until: cluster.json.status == 'installed' or cluster.json.status == 'error' or cluster.json.status == 'cancelled'
   retries: 60
   delay: 60
 
-- fail: 
-    msg="Cluster installation failed - Reset the installation process to return to the configuration and try again"
-  when: "cluster.json.status == 'error'"
+- fail:
+    msg: "Cluster installation failed - Reset the installation process to return to the configuration and try again"
+  when: cluster.json.status == 'error'
+
+- fail:
+    msg: "Installation was canceled by user - Reset the installation process to return to the configuration and try again"
+  when: cluster.json.status == 'cancelled'
 
 # TODO: once completed grap cluster credentials

@@ -24,6 +24,7 @@
         force_basic_auth: yes
         return_content: yes
 
+# TODO Fix the path to the ISO for http {{ boot_iso_url }}
     - name: Patching Host and Path for Mounting ISO
       uri:
         url: "https://{{ hostvars[item]['bmc_address'] }}/redfish/v1/Managers/1/VM1/CfgCD"

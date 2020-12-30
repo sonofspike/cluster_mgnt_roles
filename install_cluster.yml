@@ -8,5 +8,7 @@
     - debug: True
     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
     - ASSISTED_INSTALLER_PORT: 8090
-    - CLUSTER_ID: fb8858c6-0936-4de4-a234-cca860983043
-
+    - CLUSTER_ID: "{{ cluster_id }}"
+    - INGRESS_VIP: "{{ ingress_vip }}"
+    - API_VIP: "{{ api_vip }}"
+    - VIP_DHCP_ALLOCATION: "{{ vip_dhcp_allocation }}"
