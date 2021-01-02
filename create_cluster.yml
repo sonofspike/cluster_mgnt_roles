@@ -1,7 +1,7 @@
 ---
 # file: create_cluster.yml
 - hosts: kaloom-infra
-  gather_facts: True
+  gather_facts: False
   roles:
     - create_cluster
     - generate_discovery_iso
@@ -10,6 +10,7 @@
     - create: True
     - generate: True
     - download: True
+    - airgap: True
     - CLUSTER_NAME: "{{ cluster_name }}"
     - BASE_DNS_DOMAIN: "{{ base_dns_domain }}"
     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
@@ -26,3 +27,5 @@
     - MACHINE_NETWORK_CIDR: "{{ machine_network_cidr }}"
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
+    - ADDITIONAL_TRUST_BUNDLE: "{{ additional_trust_bundle }}"
+    - IMAGE_CONTENT_SOURCES: "{{ image_content_sources }}"

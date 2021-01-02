@@ -54,6 +54,11 @@ discovery_iso_name="discovery_image_ldc-griffintown.iso"
 # HTTP server where the ISO is stored
 discovery_iso_server="http://10.198.6.70:8080"
 
+# For air gap installation
+#additional_trust_bundle="{{ lookup('file', './mirror_certificate.txt') }}"
+air_gap_bundle="{{ lookup('file', './mirror_certificate.txt') }}"
+air_gap_mirror=10.198.6.70:5000
+
 [assisted_service]
 kaloom-ais host=10.198.6.70 port=8090
 

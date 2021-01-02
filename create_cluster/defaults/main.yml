@@ -4,6 +4,7 @@
 secure: True
 create: False
 debug: False
+airgap: False
 
 ASSISTED_INSTALLER_HOST: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 ASSISTED_INSTALLER_PORT: 8090
@@ -26,5 +27,7 @@ HTTP_PROXY: ""
 HTTPS_PROXY: ""
 NO_PROXY: ""
 # SSH_PUBLIC_KEY: ""
-# PULL_SECRET: {"auths":{"cloud.openshift.com":{"auth":"dXNlcjpwYXNzd29yZAo=","email":"r@r.com"},"quay.io":{"auth":"dXNlcjpwYXNzd29yZAo=","email":"r@r.com"}}}
-#
+# PULL_SECRET: ""
+
+ADDITIONAL_TRUST_BUNDLE: ""
+IMAGE_CONTENT_SOURCES: ""

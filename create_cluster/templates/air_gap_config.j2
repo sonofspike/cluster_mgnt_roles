@@ -1,0 +1,8 @@
+imageContentSources:
+- mirrors:
+  - {{ air_gap_mirror }}/ocp/release
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - {{ air_gap_mirror }}/ocp/release
+  source: registry.svc.ci.openshift.org/ocp/release
+additionalTrustBundle: "{{ air_gap_bundle }}"
