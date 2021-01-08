@@ -14,7 +14,7 @@
   until: "cluster.json.host_networks[0].cidr is defined"
   retries: 20
   delay: 60
-  when: install|bool == True
+  when: install | bool == True
 
 # Patch the cluster with the API Virtual IP
 - name: Patch cluster with API Virtual IP
@@ -29,12 +29,12 @@
         "ingress_vip": "{{ INGRESS_VIP }}",
         "api_vip": "{{ API_VIP }}"
     }
-  when: install|bool == True
+  when: install | bool == True
   register: http_reply
   
 - debug: 
     var: http_reply.json
-  when: debug|bool == True
+  when: debug | bool == True
 
 # Monitor cluster discovery
 - name: Wait for 20 min until the cluster is ready
@@ -47,7 +47,7 @@
   until: "cluster.json.status == 'ready'"
   retries: 20
   delay: 60
-  when: install|bool == True
+  when: install | bool == True
 
 # Install cluster
 - name: Install cluster
@@ -58,12 +58,12 @@
     return_content: True
     body_format: json
     body: { }
-  when: install|bool == True
+  when: install | bool == True
   register: http_reply
   
 - debug: 
     var: http_reply.json
-  when: debug|bool == True and install|bool == True
+  when: debug | bool == True and install | bool == True
 
 # Monitor cluster installation 
 - name: Wait for 60 min until the cluster is installed

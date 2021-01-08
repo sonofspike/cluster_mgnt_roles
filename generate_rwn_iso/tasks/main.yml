@@ -10,12 +10,12 @@
   get_url:
     url: "{{ URL_MIRROR_DOWNLOAD_RHCOS_LIVE_ISO }}"
     dest: "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}/rhcos-live.x86_64.iso"
-  when: download|bool == True
+  when: download | bool == True
   register: http_reply
 
 - debug:
      var: http_reply.status_code
-  when: download|bool == True
+  when: download | bool == True
 
 - name: Get worker ignition file
   get_url:
@@ -34,7 +34,7 @@
 - debug:
     msg:
       - "Cluster api vip: {{ http_reply.json.api_vip }}"
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Set cluster API properties
   set_fact:
@@ -51,11 +51,11 @@
 
 - debug:
     msg: "{{ worker_ignition_decoded }}"
-  when: debug|bool == True
+  when: debug | bool == True
   
 - debug:
     msg: "{{ worker_ignition_decoded.ignition.config.merge[0].source }}"
-  when: debug|bool == True
+  when: debug | bool == True
   
 - name: Extract the source
   set_fact:
@@ -63,7 +63,7 @@
 
 - debug:
     var: worker_ignition_config_source
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Load new worker ignition config source
   set_fact:
@@ -79,7 +79,7 @@
 #
 # - debug:
 #     var: nodeip_config_service
-#   when: debug|bool == True
+#   when: debug | bool == True
 
 # - name: Load override ignition for nodeip configuration service
 #   set_fact:
@@ -87,7 +87,7 @@
 #
 # - debug:
 #     var: nodeip_config_ignition
-#   when: debug|bool == True
+#   when: debug | bool == True
 
 # - name: Combine override nodeip configuration service with worker ignition file
 #   set_fact:
@@ -95,7 +95,7 @@
 
 - debug:
     var: worker_ignition_file
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Load first boot script file content
   set_fact:
@@ -121,7 +121,7 @@
       - /dev:/dev
       - /run/udev:/run/udev
       - "{{ DOWNLOAD_DEST_PATH }}/{{ CLUSTER_ID }}:/data"
-  when: generate|bool == True
+  when: generate | bool == True
 
 #TODO: Verify the iso file was genrated or exit here
 

@@ -18,7 +18,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: Lenovo Eject Virtual Media
       uri:
@@ -36,7 +36,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: Lenovo Insert Virtual Media
       uri:
@@ -54,7 +54,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: Lenovo Set Boot from Hard Disk
       uri:
@@ -79,7 +79,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: Lenovo Set Boot Once from Virtual Media
       uri:
@@ -104,7 +104,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: Lenovo Restart the System
       uri:
@@ -122,4 +122,4 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True

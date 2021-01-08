@@ -1,22 +1,6 @@
 ---
 # tasks file for create_cluster
 
-# - name: List clusters
-#   uri:
-#     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
-#     method: GET
-#     status_code: [200, 201]
-#     return_content: True
-#   when: create|bool == True
-#   register: http_reply
-
-# - debug:
-#     msg:
-#       - "Cluster: {{ item.name }}"
-#       - "Cluster ID: {{ item.id }}"
-#   loop: "{{ http_reply.json }}"
-#   when: debug and create|bool == True
-
 # TODO: use the variable for cluster_network_host_prefix
 - name: Create cluster
   uri:
@@ -43,45 +27,114 @@
         "https_proxy": "{{ HTTPS_PROXY }}",
         "no_proxy": "{{ NO_PROXY }}"
     }
-  when: create|bool == True
+  when: create | bool == True
   register: http_reply
-  
+
 - debug: 
     var: http_reply.json
-  when: debug|bool == True
+  when: debug and create  | bool == True
 
 - name: Set the cluster ID
   set_fact:
     cluster_id: "{{ http_reply.json.id }}"
-  when: create|bool == True
+  when: create | bool == True
 
-# TODO: Patch the cluster for air gap deployment
+- local_action: copy content={{ cluster_id }} dest=cluster.txt
+  when: create | bool == True
+  
 
-# Show install-config file
+##### TO REMOVE ####
+- name: Get discovery ignition file
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
+    method: GET
+    status_code: [200]
+    return_content: True
+  register: discovery_ignition
+
+- debug: 
+    var: discovery_ignition.json
+  when: debug | bool == True
+
+- local_action: copy content={{ discovery_ignition.json }} dest=discovery-ignition-before.txt
+
+##### TO REMOVE ####
+
+#### patch discovery ignition on restricted network environments ### 
+
+- name: Load patch for search registries
+  set_fact:
+    search_registries: "{{ lookup('template', 'patch-search-registries.j2') }}"
+  when: disconnected | bool == True
+
+- debug: 
+    var: search_registries
+  when: debug and disconnected  | bool == True
+
+- name: Load patch for discovery ignition
+  set_fact:
+    patch_discovery_ignition: "{{ lookup('template', 'patch-discovery-ignition.j2') }}"
+  when: disconnected | bool == True
+
+- debug: 
+    var: patch_discovery_ignition
+  when: debug and disconnected  | bool == True
+
+- name: Patch discovery ignition
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
+    method: PATCH
+    status_code: [201]
+    return_content: True
+    body_format: json
+    body: { "config": "{{ patch_discovery_ignition | to_json(ensure_ascii=False) | string }}" }
+  when: disconnected | bool == True
+  register: http_reply
+
+- debug:
+    var: http_reply
+  when: debug and disconnected  | bool == True
+
+- name: Get discovery ignition file
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
+    method: GET
+    status_code: [200]
+    return_content: True
+  register: discovery_ignition
+
+- debug: 
+    var: discovery_ignition.json
+  when: debug | bool == True
+
+- local_action: copy content={{ discovery_ignition.json }} dest=discovery-ignition.txt
+
+#### patch cluster install config on restricted network environments ###
+
 - name: Get install-config file
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: GET
     status_code: [200]
     return_content: True
-  when: create|bool == True
   register: install_config
 
 - debug: 
     var: install_config.json
-#  when: airgap and debug | bool == True
+  when: debug | bool == True
 
-# - local_action: copy content={{ install_config.json }} dest=install-config.txt
-#   when: create|bool == True
+- local_action: copy content={{ install_config.json }} dest=install-config.txt
 
-- name: Load air gap patch config
+- name: Load patch for install config
   set_fact:
-    patch_install_config: "{{ lookup('template', 'air_gap_config.j2') | from_yaml | to_json(ensure_ascii=False) | string }}"
+    patch_install_config: "{{ lookup('template', 'patch-install-config.j2') | from_yaml | to_json(ensure_ascii=False) | string }}"
+  when: disconnected | bool == True
 
 - debug: 
     var: patch_install_config
+  when: debug and disconnected  | bool == True
 
-- name: Patch cluster install config
+- name: Patch install config
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: PATCH
@@ -89,62 +142,36 @@
     return_content: True
     body_format: json
     body: "{{ patch_install_config | to_json(ensure_ascii=False) | string }}"
-  when: airgap|bool == True
+  when: disconnected | bool == True
   register: http_reply
-
-    # body: "{{ patch_install_config | to_json(ensure_ascii=False) | string }}"
 
 - debug:
     var: http_reply
-#   when: airgap & debug | bool == True
+  when: debug and disconnected  | bool == True
 
-# Show install-config file after patch
 - name: Get install-config file
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: GET
     status_code: [200]
     return_content: True
-  when: create|bool == True
   register: install_config
 
 - debug: 
     var: install_config.json
-#  when: airgap and debug | bool == True
-
-# additionalTrustBundle: | 
-#   -----BEGIN CERTIFICATE-----
-#   ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-#   -----END CERTIFICATE-----
-# Record the imageContentSources section from the output of the ./poc mirror command. 
-# imageContentSources: 
-# - mirrors:
-#   - <bastion_host_name>:5000/<repo_name>/release
-#   source: quay.io/openshift-release-dev/ocp-release
-# - mirrors:
-#   - <bastion_host_name>:5000/<repo_name>/release
-#   source: registry.svc.ci.openshift.org/ocp/release
-
-
-# # Show cluster information
-# - name: List clusters
-#   uri:
-#     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
-#     method: GET
-#     status_code: [200, 201]
-#     return_content: True
-#   when: create|bool == True
-#   register: http_reply
-
-# - debug:
-#     msg:
-#       - "Cluster: {{ item.name }}"
-#       - "Cluster ID: {{ item.id }}"
-#   loop: "{{ http_reply.json }}"
-#   when: create|bool == True
+  when: debug | bool == True
 
 - local_action: copy content={{ install_config.json }} dest=patched-config.txt
-  when: create|bool == True
 
-- local_action: copy content={{ cluster_id }} dest=cluster.txt
-  when: create|bool == True
+#TODO: Apply manifests before cluster installation
+
+- name: Apply manifests before cluster installation
+  include_tasks: manifest.yml
+  with_items:
+    - 50-worker-nm-fix-ipv6.yml
+    - 50-worker-remove-ipi-leftovers.yml
+  when: manifests  | bool == True
+
+
+
+  

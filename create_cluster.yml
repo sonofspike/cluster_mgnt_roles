@@ -10,8 +10,11 @@
     - create: True
     - generate: True
     - download: True
-    - airgap: True
+    - disconnected: True
+    - manifests: True
+    - debug: True
     - CLUSTER_NAME: "{{ cluster_name }}"
+    - CLUSTER_ID: "{{ cluster_id }}"
     - BASE_DNS_DOMAIN: "{{ base_dns_domain }}"
     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
     - ASSISTED_INSTALLER_PORT: 8090
@@ -27,5 +30,3 @@
     - MACHINE_NETWORK_CIDR: "{{ machine_network_cidr }}"
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
-    - ADDITIONAL_TRUST_BUNDLE: "{{ additional_trust_bundle }}"
-    - IMAGE_CONTENT_SOURCES: "{{ image_content_sources }}"

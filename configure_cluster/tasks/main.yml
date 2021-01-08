@@ -13,7 +13,7 @@
     msg: 
       - "Cluster username: {{ http_reply.json.username }}"
       - "Cluster password: {{ http_reply.json.password }}"
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Set cluster credentials
   set_fact: 
@@ -31,7 +31,7 @@
 - debug: 
     msg: 
       - "Cluster api vip: {{ http_reply.json[0].api_vip }}"
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Set cluster API properties
   set_fact: 
@@ -49,7 +49,7 @@
 - debug: 
     msg: 
       - "Cluster access token: {{ k8s_auth_results.k8s_auth.api_key }}"
-  when: debug|bool == True
+  when: debug | bool == True
 
 - name: Create nodeIP project
   community.kubernetes.k8s:

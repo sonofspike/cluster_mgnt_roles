@@ -19,7 +19,7 @@
 
     - debug:
         var: http_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: KVM Set System UUID
       set_fact:
@@ -42,9 +42,9 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
-    - name: KVM Insert Virtual Media
+    - name: KVM Insert Virtual Media {{ hostvars[item]['inventory_hostname'] }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_manager }}/VirtualMedia/Cd/Actions/VirtualMedia.InsertMedia"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -63,7 +63,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: KVM Verify Virtual Media
       uri:
@@ -75,11 +75,11 @@
         validate_certs: no
         return_content: yes
       register: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: KVM Set OneTimeBoot Virtual Media
       uri:
@@ -97,7 +97,7 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: KVM Verify System Power State
       uri:
@@ -109,11 +109,10 @@
         validate_certs: no
         return_content: yes
       register: redfish_reply
-      when: debug|bool == True
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True
 
     - name: KVM Force Restart System
       uri:
@@ -179,4 +178,4 @@
 
     - debug:
         var: redfish_reply
-      when: debug|bool == True
+      when: debug | bool == True

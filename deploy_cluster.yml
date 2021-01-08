@@ -1,6 +1,9 @@
 ---
 # file: deploy_cluster.yml
 
+# TODO: Use the inventory information
+#     - ASSISTED_INSTALLER_HOST: "{{ groups['assisted_service'][0].host | default('10.198.6.70') }}"
+#     - ASSISTED_INSTALLER_PORT: "{{ groups['assisted_service'][0].port | default('8090') }}"
 - name: Create cluster and generate Assisted Installer Discovery ISO
   hosts: kaloom-infra
   gather_facts: False
@@ -12,7 +15,10 @@
     - create: True
     - generate: True
     - download: True
+    - disconnected: True
+    - manifests: True
     - CLUSTER_NAME: "{{ cluster_name }}"
+    - CLUSTER_ID: "{{ cluster_id }}"
     - BASE_DNS_DOMAIN: "{{ base_dns_domain }}"
     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
     - ASSISTED_INSTALLER_PORT: 8090
@@ -29,12 +35,37 @@
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
 
-# TODO: Use the inventory information
-#     - ASSISTED_INSTALLER_HOST: "{{ groups['assisted_service'][0].host | default('10.198.6.70') }}"
-#     - ASSISTED_INSTALLER_PORT: "{{ groups['assisted_service'][0].port | default('8090') }}"
+# #TODO: Patch the cluster for disconnected installation
+# - name:
+#   hosts: kaloom-infra
+#   gather_facts: False
+#   roles:
+#     - patch_cluster
+#   vars:
+#     - secure: False
+#     - disconnected: True
+#     - manifests: True
+#     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
+#     - ASSISTED_INSTALLER_PORT: 8090
+
+# #TODO: Apply manifests before cluster installation
+# - name:
+#   hosts: kaloom-infra
+#   gather_facts: False
+#   roles:
+#       - patch_cluster
+#   vars:
+#     - secure: False
+#     - manifest: True
+#     - manifests:
+#        - ran
+#        - du
+#     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
+#     - ASSISTED_INSTALLER_PORT: 8090
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
   hosts: kaloom-infra
+  gather_facts: False
   roles:
     - boot_iso
   vars:
@@ -43,6 +74,7 @@
 
 - name: Installing the cluster
   hosts: kaloom-infra
+  gather_facts: False
   roles:
     - install_cluster
   vars:
