@@ -9,22 +9,22 @@ The typical installation and utilization of this playbook is to launch it from t
 ## Pre-requisites before you get started:
 
 ### Services
-1. Onprem verison of the Assisted Installer, deployed and available. 
+1. Onprem verison of the Assisted Installer, deployed and available.
    - The following can be used: <https://github.com/sonofspike/assisted-service-onprem>
-2. An available HTTP server, such as nginx or Apache, deployed and available.  
+2. An available HTTP server, such as nginx or Apache, deployed and available
    - The following can be used: <https://github.com/sonofspike/http_store>
-3. An available container registry if a restricted network installation is desired, to be deployed and available with OpenShift content mirrored to it.  
-   - The following can be used for the mirror itself: <https://github.com/sonofspike/registry_mirror>.  
+3. An available container registry if a restricted network installation is desired, to be deployed and available with OpenShift content mirrored to it
+   - The following can be used for the mirror itself: <https://github.com/sonofspike/registry_mirror>
    - The following can be used for accomplishing operator specific mirroring after the registry is stood up: <https://github.com/openshift-telco/ocp4-offline-operator-mirror>
 
 ### The Usual OpenShift Infrastructure Requirements
-4. DHCP for giving out addresses to nodes that will become part of the cluster.  
-   - Future updates to this playbook should support static IP address assignment.
+4. DHCP for giving out addresses to nodes that will become part of the cluster
+   - Future updates to this playbook will support static IP address assignment
 5. API endpoint (API Virtual IP)
 6. Wildcard domain `*.apps.<clusterName>.<baseDomain>` (Ingress VIP)
 
 ### Files to have available for the playbook
-1. Your cluster pull secret <https://cloud.redhat.com/openshift/install>
+1. Your OpenShift pull secret <https://cloud.redhat.com/openshift/install>
    - Store this as `pull_secret.txt` in the playbook base directory
 2. Your SSH Public Key that will be injected into the nodes `~/.ssh/authorized_keys` directory
    - Store this as `ssh_public_key.txt` in the playbook base directory
@@ -34,8 +34,8 @@ The typical installation and utilization of this playbook is to launch it from t
 ## Running
 
 When you're ready to execute this, do the following
-1. Modify the provided `inventory` file. Add appropriate values that suit your environment in the various sections.
-2. Modify `deploy_cluster.yml` and input the Assisted Installer Host and port that matches your environment.
+1. Modify the provided `inventory` file. Add appropriate values that suit your environment in the various sections
+2. Modify `deploy_cluster.yml` and input the Assisted Installer Host and port that matches your environment
 
 
 The following launches the playbook:
