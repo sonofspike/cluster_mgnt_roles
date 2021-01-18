@@ -40,5 +40,5 @@ When you're ready to execute this, do the following
 
 The following launches the playbook:
 ```Shell
-ansible-playbook -i inventory deploy_cluster.yaml
+ansible-playbook -i inventory deploy_cluster.yml
 ```

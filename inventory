@@ -42,7 +42,7 @@ ssh_public_key="{{ lookup('file', './ssh_public_key.txt') }}"
 # Load pull-secret file
 pull_secret="{{ lookup('file', './pull_secret.txt') }}"
 
-# Load clsuter file
+# Load cluster file, this is generated automatically
 cluster_id="{{ lookup('file', './cluster.txt') }}"
 
 # Version of the openshift-installer, undefined or empty results in the playbook failing.
@@ -54,7 +54,7 @@ discovery_iso_name="discovery_image_ldc-griffintown.iso"
 # HTTP server where the ISO is stored
 discovery_iso_server="http://10.198.6.70:8080"
 
-# For air gap installation
+# Parameters for a Restricted Network installation
 #additional_trust_bundle="{{ lookup('file', './mirror_certificate.txt') }}"
 mirror_certificate="{{ lookup('file', './mirror_certificate.txt') }}"
 mirror_registry=infra.ldc-griffintown.rdc-mtl.ran.lan:5000
@@ -70,7 +70,7 @@ kaloom-infra ansible_ssh_user=root ansible_ssh_host=10.198.6.70
 #supermicro-infra ansible_ssh_user=ran ansible_ssh_host=172.24.118.250
 #rhpool-infra ansible_ssh_user=root ansible_ssh_host=10.1.196.40
 
-#Options for vendor include: Dell, HPE, SuperMicro, KVM
+#Options for vendor include: Dell, HPE, SuperMicro, Lenovo, KVM
 # Master nodes
 [masters]
 master0-ldc-griffintown role=master bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.6.63:8000 vendor=KVM
@@ -82,7 +82,6 @@ master2-ldc-griffintown role=master bmc_user=USERID bmc_password=PASSW0RD bmc_ad
 
 # Worker nodes
 [workers]
-#worker0 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
-#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.66 vendor=Lenovo
-#worker1 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.67 vendor=Lenovo
-
+#server64 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.64 vendor=Lenovo
+#server65 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.65 vendor=Lenovo
+#server66 role=worker bmc_user=USERID bmc_password=PASSW0RD bmc_address=10.198.0.66 vendor=Lenovo

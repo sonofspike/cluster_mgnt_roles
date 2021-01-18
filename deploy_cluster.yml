@@ -5,7 +5,7 @@
 #     - ASSISTED_INSTALLER_HOST: "{{ groups['assisted_service'][0].host | default('10.198.6.70') }}"
 #     - ASSISTED_INSTALLER_PORT: "{{ groups['assisted_service'][0].port | default('8090') }}"
 - name: Create cluster and generate Assisted Installer Discovery ISO
-  hosts: kaloom-infra
+  hosts: bastion
   gather_facts: False
   roles:
     - create_cluster
@@ -64,7 +64,7 @@
 #     - ASSISTED_INSTALLER_PORT: 8090
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
-  hosts: kaloom-infra
+  hosts: bastion
   gather_facts: False
   roles:
     - boot_iso
@@ -73,7 +73,7 @@
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"
 
 - name: Installing the cluster
-  hosts: kaloom-infra
+  hosts: bastion
   gather_facts: False
   roles:
     - install_cluster
