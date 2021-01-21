@@ -15,4 +15,3 @@
   vars:
     - debug: True
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"
-

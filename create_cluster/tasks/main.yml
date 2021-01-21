@@ -30,7 +30,7 @@
   when: create | bool == True
   register: http_reply
 
-- debug: 
+- debug:
     var: http_reply.json
   when: debug and create  | bool == True
 
@@ -39,9 +39,13 @@
     cluster_id: "{{ http_reply.json.id }}"
   when: create | bool == True
 
-- local_action: copy content={{ cluster_id }} dest=cluster.txt
+- name: "Save cluster_id"
+  copy:
+    content: "{{ cluster_id }}"
+    dest: cluster.txt
+  delegate_to: localhost
   when: create | bool == True
-  
+
 
 ##### TO REMOVE ####
 - name: Get discovery ignition file
@@ -52,22 +56,26 @@
     return_content: True
   register: discovery_ignition
 
-- debug: 
+- debug:
     var: discovery_ignition.json
   when: debug | bool == True
 
-- local_action: copy content={{ discovery_ignition.json }} dest=discovery-ignition-before.txt
+- name: "Copy discovery_ignition cluster_id"
+  copy:
+    content: "{{ discovery_ignition.json }}"
+    dest: discovery-ignition-before.txt
+  delegate_to: localhost
 
 ##### TO REMOVE ####
 
-#### patch discovery ignition on restricted network environments ### 
+#### patch discovery ignition on restricted network environments ###
 
 - name: Load patch for search registries
   set_fact:
     search_registries: "{{ lookup('template', 'patch-search-registries.j2') }}"
   when: disconnected | bool == True
 
-- debug: 
+- debug:
     var: search_registries
   when: debug and disconnected  | bool == True
 
@@ -76,7 +84,7 @@
     patch_discovery_ignition: "{{ lookup('template', 'patch-discovery-ignition.j2') }}"
   when: disconnected | bool == True
 
-- debug: 
+- debug:
     var: patch_discovery_ignition
   when: debug and disconnected  | bool == True
 
@@ -103,11 +111,15 @@
     return_content: True
   register: discovery_ignition
 
-- debug: 
+- debug:
     var: discovery_ignition.json
   when: debug | bool == True
 
-- local_action: copy content={{ discovery_ignition.json }} dest=discovery-ignition.txt
+- name: "Copy discovery_ignition.json"
+  copy:
+    content: "{{ discovery_ignition.json }}"
+    dest: discovery-ignition.txt
+  delegate_to: localhost
 
 #### patch cluster install config on restricted network environments ###
 
@@ -119,18 +131,22 @@
     return_content: True
   register: install_config
 
-- debug: 
+- debug:
     var: install_config.json
   when: debug | bool == True
 
-- local_action: copy content={{ install_config.json }} dest=install-config.txt
+- name: "Copy install_config"
+  copy:
+    content: "{{ install_config.json }}"
+    dest: install-config.txt
+  delegate_to: localhost
 
 - name: Load patch for install config
   set_fact:
     patch_install_config: "{{ lookup('template', 'patch-install-config.j2') | from_yaml | to_json(ensure_ascii=False) | string }}"
   when: disconnected | bool == True
 
-- debug: 
+- debug:
     var: patch_install_config
   when: debug and disconnected  | bool == True
 
@@ -157,11 +173,15 @@
     return_content: True
   register: install_config
 
-- debug: 
+- debug:
     var: install_config.json
   when: debug | bool == True
 
-- local_action: copy content={{ install_config.json }} dest=patched-config.txt
+- name: "Copy install_config-json to patched-config.txt"
+  copy:
+    content: "{{ install_config.json }}"
+    dest: patched-config.txt
+  delegate_to: localhost
 
 #TODO: Apply manifests before cluster installation
 
@@ -171,7 +191,3 @@
     - 50-worker-nm-fix-ipv6.yml
     - 50-worker-remove-ipi-leftovers.yml
   when: manifests  | bool == True
-
-
-
-  

@@ -52,11 +52,11 @@
 - debug:
     msg: "{{ worker_ignition_decoded }}"
   when: debug | bool == True
-  
+
 - debug:
     msg: "{{ worker_ignition_decoded.ignition.config.merge[0].source }}"
   when: debug | bool == True
-  
+
 - name: Extract the source
   set_fact:
    worker_ignition_config_source: "{{ worker_ignition_decoded.ignition.config.merge[0].source | replace( '/worker', '' ) }}"
@@ -124,4 +124,3 @@
   when: generate | bool == True
 
 #TODO: Verify the iso file was genrated or exit here
-

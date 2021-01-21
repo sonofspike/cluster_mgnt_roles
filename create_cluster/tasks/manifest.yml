@@ -6,7 +6,7 @@
     manifest: "{{ lookup('template', '{{ item }}.j2' ) }}"
   when: manifests | bool == True
 
-- debug: 
+- debug:
     var: manifest
   when: debug and manifests  | bool == True
 

@@ -27,4 +27,3 @@ SSH_PUBLIC_KEY: ""
 PASSWORD_HASH: "$1$f9F1p5ap$VIFGF2QHttm6xPeGMh/YA/"
 
 WORKER_CONFIG_ROLE: "remote-worker"
-

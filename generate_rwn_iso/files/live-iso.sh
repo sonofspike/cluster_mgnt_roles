@@ -5,12 +5,12 @@ kernel_args=''
 
 # Remove any existing VGs and PVs
 # vgremove removes a volume group
-for vg in $(vgs -o name --noheadings) ; do vgremove -y $vg ; done
+for vg in $(vgs -o name --noheadings); do vgremove -y $vg; done
 # pvremove wipes the label on a device so that LVM will no longer recognise it as a physical volume
-for pv in $(pvs -o name --noheadings) ; do pvremove -y $pv ; done
+for pv in $(pvs -o name --noheadings); do pvremove -y $pv; done
 
 # Wipe out all disks
-for dev in $(lsblk -lpdn -o NAME | grep sd[a-z]) ; do wipefs --all $dev ; done
+for dev in $(lsblk -lpdn -o NAME | grep sd[a-z]); do wipefs --all $dev; done
 
 # use the first block device
 first_block_dev=$(lsblk -lpdn -o NAME | grep [s,v]d[a-z] | head -n1)
@@ -24,10 +24,10 @@ fi
 
 cmd="coreos-installer install --firstboot-args=\"${firstboot_args} ${kernel_args}\" --ignition=/root/config.ign ${install_device}"
 bash -c "$cmd"
-if [ "$?" == "0" ] ; then
-  echo "Install Succeeded!"
-  reboot
+if [ "$?" == "0" ]; then
+    echo "Install Succeeded!"
+    reboot
 else
-  echo "Install Failed!"
-  exit 1
+    echo "Install Failed!"
+    exit 1
 fi

@@ -1,7 +1,8 @@
 ---
 # tasks file for boot_iso
 
-- fail: 
+- name: "Fail playbook without boot_iso_url"
+  fail:
     msg="Missing argument: this playbook requires 'boot_iso' to be defined with the URL of the ISO to boot the systems"
   when: boot_iso_url is not defined
 

@@ -6,7 +6,7 @@
     manifest: "{{ lookup('template', '{{ item }}.j2' ) | from_yaml | to_json(ensure_ascii=False) | string }}"
   when: manifests | bool == True
 
-- debug: 
+- debug:
     var: manifest
   when: debug and manifests  | bool == True
 

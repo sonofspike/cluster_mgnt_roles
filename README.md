@@ -1,15 +1,16 @@
 # OpenShift 4 Management Cluster Seed Playbook
 
-> :heavy_exclamation_mark: *Red Hat support cannot assist with problems with this Repo*.
+> :heavy_exclamation_mark: _Red Hat support cannot assist with problems with this Repo_.
 
-This playbook is responsible for automating the creation of an OpenShift Container Platform (4.6) cluster using the Developer Preview version of the OpenShift Assisted Installer.  Virtual and baremetal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io`, and `redhat.com` directly without a proxy), as well as a restricted network installation.
+This playbook is responsible for automating the creation of an OpenShift Container Platform (4.6) cluster using the Developer Preview version of the OpenShift Assisted Installer. Virtual and baremetal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io`, and `redhat.com` directly without a proxy), as well as a restricted network installation.
 
-The typical installation and utilization of this playbook is to launch it from the system architects laptop, outside of the environment that is desired to be provisioned. The pre-requisite services required are typically hosted on a "bastion" or infrastructure system that hosts system services required by this playbook.  It is up to the system architect to provide these services at this time.
+The typical installation and utilization of this playbook is to launch it from the system architects laptop, outside of the environment that is desired to be provisioned. The pre-requisite services required are typically hosted on a "bastion" or infrastructure system that hosts system services required by this playbook. It is up to the system architect to provide these services at this time.
 
 ## Pre-requisites before you get started:
 
 ### Services
-1. Onprem verison of the Assisted Installer, deployed and available.
+
+1. Onprem version of the Assisted Installer, deployed and available.
    - The following can be used: <https://github.com/sonofspike/assisted-service-onprem>
 2. An available HTTP server, such as nginx or Apache, deployed and available
    - The following can be used: <https://github.com/sonofspike/http_store>
@@ -18,27 +19,30 @@ The typical installation and utilization of this playbook is to launch it from t
    - The following can be used for accomplishing operator specific mirroring after the registry is stood up: <https://github.com/openshift-telco/ocp4-offline-operator-mirror>
 
 ### The Usual OpenShift Infrastructure Requirements
+
 4. DHCP for giving out addresses to nodes that will become part of the cluster
    - Future updates to this playbook will support static IP address assignment
 5. API endpoint (API Virtual IP)
 6. Wildcard domain `*.apps.<clusterName>.<baseDomain>` (Ingress VIP)
 
 ### Files to have available for the playbook
+
 1. Your OpenShift pull secret <https://cloud.redhat.com/openshift/install>
    - Store this as `pull_secret.txt` in the playbook base directory
 2. Your SSH Public Key that will be injected into the nodes `~/.ssh/authorized_keys` directory
    - Store this as `ssh_public_key.txt` in the playbook base directory
 3. The trusted SSL signed self-certificate to be used for the registry, which must be injected into the installation as a trusted repository
-   - Store this as `mirror_certificate.txt` in the playbook base directory.  Do not forget to pad this entire file with four spaces for every line, even the BEGIN and END CERTIFICATE lines
+   - Store this as `mirror_certificate.txt` in the playbook base directory. Do not forget to pad this entire file with four spaces for every line, even the BEGIN and END CERTIFICATE lines
 
 ## Running
 
 When you're ready to execute this, do the following
+
 1. Modify the provided `inventory` file. Add appropriate values that suit your environment in the various sections
 2. Modify `deploy_cluster.yml` and input the Assisted Installer Host and port that matches your environment
 
+The following command launches the playbook:
 
-The following launches the playbook:
-```Shell
+```sh
 ansible-playbook -i inventory deploy_cluster.yml
 ```
