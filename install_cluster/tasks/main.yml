@@ -31,8 +31,8 @@
     }
   when: install | bool == True
   register: http_reply
-  
-- debug: 
+
+- debug:
     var: http_reply.json
   when: debug | bool == True
 
@@ -60,12 +60,13 @@
     body: { }
   when: install | bool == True
   register: http_reply
-  
-- debug: 
+
+- name: Debug http_reply
+  debug:
     var: http_reply.json
   when: debug | bool == True and install | bool == True
 
-# Monitor cluster installation 
+# Monitor cluster installation
 - name: Wait for 60 min until the cluster is installed
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
@@ -77,11 +78,13 @@
   retries: 60
   delay: 60
 
-- fail:
+- name: "Fail installation because user cancelled (ERROR)"
+  fail:
     msg: "Cluster installation failed - Reset the installation process to return to the configuration and try again"
   when: cluster.json.status == 'error'
 
-- fail:
+- name: "Fail installation because user cancelled (CANCELLED)"
+  fail:
     msg: "Installation was canceled by user - Reset the installation process to return to the configuration and try again"
   when: cluster.json.status == 'cancelled'
 

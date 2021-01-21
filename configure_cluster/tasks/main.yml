@@ -9,14 +9,14 @@
     return_content: True
   register: http_reply
 
-- debug: 
-    msg: 
+- debug:
+    msg:
       - "Cluster username: {{ http_reply.json.username }}"
       - "Cluster password: {{ http_reply.json.password }}"
   when: debug | bool == True
 
 - name: Set cluster credentials
-  set_fact: 
+  set_fact:
     cluster_username: "{{ http_reply.json.username }}"
     cluster_password: "{{ http_reply.json.password }}"
 
@@ -28,13 +28,13 @@
     return_content: True
   register: http_reply
 
-- debug: 
-    msg: 
+- debug:
+    msg:
       - "Cluster api vip: {{ http_reply.json[0].api_vip }}"
   when: debug | bool == True
 
 - name: Set cluster API properties
-  set_fact: 
+  set_fact:
     cluster_api_vip: "{{ http_reply.json[0].api_vip }}"
     cluster_api_url: "https://api.{{ http_reply.json[0].name }}.{{ http_reply.json[0].base_dns_domain }}:6443"
 
@@ -46,8 +46,8 @@
     validate_certs: no
   register: k8s_auth_results
 
-- debug: 
-    msg: 
+- debug:
+    msg:
       - "Cluster access token: {{ k8s_auth_results.k8s_auth.api_key }}"
   when: debug | bool == True
 
@@ -120,7 +120,7 @@
     kind: Project
     name: "{{ AUTORULES_PROJECT_NAME }}"
 
-- name: Create autorules config map 
+- name: Create autorules config map
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -132,7 +132,7 @@
       fail_on_error: no
       strict: yes
 
-- name: Create autorules role binding 
+- name: Create autorules role binding
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -144,7 +144,7 @@
       fail_on_error: no
       strict: yes
 
-- name: Apply autorules deployment 
+- name: Apply autorules deployment
   community.kubernetes.k8s:
     host: "{{ cluster_api_url }}"
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
@@ -156,7 +156,6 @@
       fail_on_error: no
       strict: yes
 
-
 - name: Revoke cluster access token
   when: k8s_auth_results.k8s_auth.api_key is defined
   community.kubernetes.k8s_auth:
@@ -164,4 +163,3 @@
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
     validate_certs: no
     state: absent
-

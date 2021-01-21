@@ -14,5 +14,3 @@ NODEIP_PROJECT_NAME: "son-of-spike"
 AUTORULES_PROJECT_NAME: "autorules"
 AUTORULES_MATCH_RULE: ".*remote.*"
 AUTORULES_MATCH_ROLE: "remote-worker"
-
-

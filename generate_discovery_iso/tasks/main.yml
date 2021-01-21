@@ -13,7 +13,7 @@
     body: { "ssh_public_key": "{{ SSH_PUBLIC_KEY }}" }
   when: generate | bool == True
   register: http_reply
-  
+
 - debug:
     var: http_reply.json
   when: debug and generate | bool == True
