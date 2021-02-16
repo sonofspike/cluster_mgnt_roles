@@ -1,6 +1,6 @@
 ---
 - name: Play to install UI for Assisted Installer
-  hosts: provisioner
+  hosts: bastion
   become: yes
   become_user: root
   roles:
