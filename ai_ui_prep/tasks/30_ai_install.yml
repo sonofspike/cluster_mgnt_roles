@@ -1,0 +1,58 @@
+---
+#- name: Run a script with arguments (free form)
+#  script:
+#    chdir: /home/kni/assisted_installer/scripts
+#    cmd: hostname
+#  tags:
+#  - install
+
+- name: Run a script using a module
+  shell: |
+    /home/kni/assisted_installer/scripts/install_environment.sh
+  ignore_errors: True
+  tags:
+  - install
+
+
+
+#- name: CHeck the hostname
+#  command:
+#    cmd: sh /home/kni/assisted_installer/scripts/install_environment.sh
+#  tags:
+#  - install
+
+- name: PWD
+  command: pwd
+  tags:
+  - install
+
+#- name: Task to install minikube, services, and UI into your provisioner node
+#  make:
+#    chdir: /home/kni/assisted_installer
+#    target: all
+#    file: create_full_environment
+#  tags:
+#  - install
+
+- name: This uses shell to run commands
+  shell: |
+    cd /home/kni/assisted_installer
+    make create_full_environment
+  tags:
+  - install
+
+- name: This also uses shell
+  shell: |
+    cd /home/kni/assisted_installer
+    make run
+  tags:
+  - install
+
+
+#- name: Task to create a UI for a node
+#  make:
+#    chdir: /home/kni/assisted_installer
+#    target: all
+#    file: run
+#  tags:
+#  - install

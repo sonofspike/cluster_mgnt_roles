@@ -1,0 +1,13 @@
+---
+# tasks file for ai_ui_prep
+- include_tasks: 10_prep_node.yml
+  tags:
+  - prep
+
+- include_tasks: 20_repo_clone.yml
+  tags:
+  - clone
+
+- include_tasks: 30_ai_install.yml
+  tags:
+  - install

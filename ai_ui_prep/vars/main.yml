@@ -1,0 +1,11 @@
+---
+# vars file for ai_ui_prep
+package_list:
+  - tar
+  - libvirt
+  - qemu-kvm
+  - python3-devel
+  - jq
+  - ipmitool
+  - make
+  - git

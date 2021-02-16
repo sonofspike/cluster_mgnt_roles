@@ -1,0 +1,19 @@
+---
+- name: Install packages
+  yum:
+    name: "{{ package_list }}"
+    state: present
+    update_cache: true
+    disable_gpg_check: yes
+  become: yes
+  tags: packages
+
+- name: Clone the Assisted Installer repo
+  git:
+    repo: https://github.com/openshift/assisted-test-infra.git
+    dest: /home/kni/assisted_installer
+    force: yes
+    clone: yes
+    #update: no
+    #tags: packages
+    #version: release-0.22

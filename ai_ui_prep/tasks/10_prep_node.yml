@@ -1,0 +1,29 @@
+---
+- name: Generate SSH key pair
+  openssh_keypair:
+    path: /root/.ssh/id_rsa
+  tags:
+    - prep
+
+- name: Create a kni group
+  group:
+    name: kni
+    state: present
+
+- name: Create kni user
+  user:
+    name: kni
+    shell: /bin/bash
+    groups: kni
+    append: yes
+  tags:
+    - prep
+
+- name: Create a 2048-bit SSH key for user kni in /home/kni/.ssh/id_rsa
+  user:
+    name: kni
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: /home/kni/.ssh/id_rsa
+  tags:
+    - prep

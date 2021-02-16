@@ -1,0 +1,7 @@
+---
+- name: Play to install UI for Assisted Installer
+  hosts: provisioner
+  become: yes
+  become_user: root
+  roles:
+  - ai_ui_prep
