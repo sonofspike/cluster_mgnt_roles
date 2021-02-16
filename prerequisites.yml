@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  connection: local
+  strategy: free
+  tasks:
+    - name: Get stats of pull_secret.txt
+      stat:
+        path: "pull_secret.txt"
+      register: pullsecret
+
+    - name: Check if the pull_secret.txt exists
+      fail:
+        msg:
+        - "The required pull secret pull_secret.txt is required but does not exist"
+      when: pullsecret.stat.exists != true
+
+    - name: Get stats of ssh_public_key.txt
+      stat:
+        path: "ssh_public_key.txt"
+      register: sshpublickey
+
+    - name: Check if the ssh_public_key.txt exists
+      fail:
+        msg:
+        - "The required pull secret ssh_public_key.txt is required but does not exist"
+      when: sshpublickey.stat.exists != true
+
+
+    - name: Get stats of mirror_certificate.txt
+      stat:
+        path: "mirror_certificate.txt"
+      register: mirror_certificate
+
+    - name: Check if the mirror_certificate.txt exists
+      fail:
+        msg:
+        - "The required pull secret mirror_certificate.txt is required but does not exist"
+      when: mirror_certificate.stat.exists != true
+
+
+    - name: Get stats of inventory
+      stat:
+        path: "inventory"
+      register: inventory
+
+    - name: Check if the inventory exists
+      fail:
+        msg:
+        - "The required pull secret inventory is required but does not exist"
+      when: inventory.stat.exists != true
+
+    - name: Final validation
+      debug:
+        msg: "You should be ready to go and execute ansible-playbook -i inventory deploy_cluster.yml"
