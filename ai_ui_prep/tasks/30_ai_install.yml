@@ -13,18 +13,16 @@
   tags:
   - install
 
-
-
 #- name: CHeck the hostname
 #  command:
 #    cmd: sh /home/kni/assisted_installer/scripts/install_environment.sh
 #  tags:
 #  - install
 
-- name: PWD
-  command: pwd
-  tags:
-  - install
+# - name: PWD
+#   command: pwd
+#   tags:
+#   - install
 
 #- name: Task to install minikube, services, and UI into your provisioner node
 #  make:
@@ -34,20 +32,31 @@
 #  tags:
 #  - install
 
-- name: This uses shell to run commands
+- name: Copy PullSecret into /home/kni/assisted_installer/pull_secret.txt
+  copy:
+    content: "{{ PULL_SECRET }}"
+    dest: "/home/kni/assisted_installer/pull_secret.txt"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+    force: yes
+
+- name: Create full environment via shell command
   shell: |
     cd /home/kni/assisted_installer
     make create_full_environment
   tags:
   - install
 
-- name: This also uses shell
+
+- name: Run the environment via shell command
   shell: |
     cd /home/kni/assisted_installer
     make run
+  environment:
+    PULL_SECRET_FILE:  "/home/kni/assisted_installer/pull_secret.txt"
   tags:
   - install
-
 
 #- name: Task to create a UI for a node
 #  make:

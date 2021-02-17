@@ -5,3 +5,6 @@
   become_user: root
   roles:
   - ai_ui_prep
+
+  vars:
+    PULL_SECRET:  "{{ lookup('file', './pull_secret.txt') }}"
