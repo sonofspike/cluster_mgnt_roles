@@ -1,6 +1,16 @@
 # OpenShift 4 Management Cluster Seed Playbook
 
-> :heavy*exclamation_mark: \_Red Hat support cannot assist with problems with this Repo*.
+> :heavy_exclamation_mark: *Red Hat does not provide commercial support for the content of this repo*
+
+```bash
+##############################################################################
+DISCLAIMER: THE CONTENT OF THIS REPO IS PROVIDED "AS-IS"
+
+THE CONTENT IS PROVIDED AS REFERENCE WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+##############################################################################
+```
 
 This playbook is responsible for automating the creation of an OpenShift Container Platform (4.6) cluster using the Developer Preview version of the OpenShift Assisted Installer. Virtual and bare metal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io` and `redhat.com` directly without a proxy), as well as a restricted network installation.
 
