@@ -34,6 +34,7 @@
     - MACHINE_NETWORK_CIDR: "{{ machine_network_cidr }}"
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
+    - NTP_SERVER: "{{ ntp_server }}"
 
 # #TODO: Patch the cluster for disconnected installation
 # - name:
