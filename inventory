@@ -35,6 +35,8 @@ cluster_network_host_prefix=23
 # Service network CIDR
 service_network_cidr="172.30.0.0/16"
 
+ntp_server="clock.redhat.com"
+
 #Host SSH Public Key for troubleshooting after installation
 # Use the same host discovery SSH key
 ssh_public_key="{{ lookup('file', './ssh_public_key.txt') }}"
