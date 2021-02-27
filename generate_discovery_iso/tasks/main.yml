@@ -1,6 +1,16 @@
 ---
 # tasks file for generate_discovery_iso
 
+- name: create a default config
+  set_fact:
+    static_ips_config: []
+
+- name : load the list of static IP addresses
+  include_tasks: static.yml
+  with_items:
+    - "{{ groups['masters'] }}"
+    - "{{ groups['workers'] | default([]) }}"
+
 - name: Generate a new discovery ISO
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
@@ -10,7 +20,7 @@
     body_format: json
     status_code: [201]
     return_content: True
-    body: { "ssh_public_key": "{{ SSH_PUBLIC_KEY }}" }
+    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}" }
   when: generate | bool == True
   register: http_reply
 
