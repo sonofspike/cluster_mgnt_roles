@@ -3,7 +3,7 @@
 # Virtual Redfish BMC
 # https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html#uefi-boot
 #
-- name: Mount Live ISO, Boot into Live ISO (KVM only)
+- name: Mount Live ISO, Boot into Live ISO (KVM only) {{ item }}
   block:
 
     - name: Identify System Manager
@@ -26,7 +26,7 @@
         system_uuid: "{{ http_reply.json['@odata.id'] }}"
         system_manager: "{{ http_reply.json.Links.ManagedBy[0]['@odata.id'] }}"
 
-    - name: KVM Eject Virtual Media (if any)
+    - name: KVM Eject Virtual Media (if any) {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_manager }}/VirtualMedia/Cd/Actions/VirtualMedia.EjectMedia"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -44,7 +44,7 @@
         var: redfish_reply
       when: debug | bool == True
 
-    - name: KVM Insert Virtual Media {{ hostvars[item]['inventory_hostname'] }}
+    - name: KVM Insert Virtual Media {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_manager }}/VirtualMedia/Cd/Actions/VirtualMedia.InsertMedia"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -65,7 +65,7 @@
         var: redfish_reply
       when: debug | bool == True
 
-    - name: KVM Verify Virtual Media
+    - name: KVM Verify Virtual Media {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_manager }}/VirtualMedia/Cd"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -81,7 +81,7 @@
         var: redfish_reply
       when: debug | bool == True
 
-    - name: KVM Set OneTimeBoot Virtual Media
+    - name: KVM Set OneTimeBoot Virtual Media {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -99,7 +99,7 @@
         var: redfish_reply
       when: debug | bool == True
 
-    - name: KVM Verify System Power State
+    - name: KVM Verify System Power State {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -114,7 +114,7 @@
         var: redfish_reply
       when: debug | bool == True
 
-    - name: KVM Force Restart System
+    - name: KVM Force Restart System {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}/Actions/ComputerSystem.Reset"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -129,7 +129,7 @@
       register: redfish_restart
       when: redfish_reply.json.PowerState == "On"
 
-    - name: KVM Force Power On System
+    - name: KVM Force Power On System {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}/Actions/ComputerSystem.Reset"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -148,7 +148,7 @@
       pause:
         seconds: 30
 
-    - name: KVM Verify System Power State is On
+    - name: KVM Verify System Power State is On {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
         user: "{{ hostvars[item]['bmc_user'] }}"
@@ -162,7 +162,7 @@
       retries: 3
       delay: 30
 
-    - name: KVM Set Next Boot from HDD
+    - name: KVM Set Next Boot from HDD {{ item }}
       uri:
         url: "http://{{ hostvars[item]['bmc_address'] }}{{ system_uuid }}"
         user: "{{ hostvars[item]['bmc_user'] }}"

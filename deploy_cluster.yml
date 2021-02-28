@@ -1,9 +1,6 @@
 ---
 # file: deploy_cluster.yml
 
-# TODO: Use the inventory information
-#     - ASSISTED_INSTALLER_HOST: "{{ groups['assisted_service'][0].host | default('10.198.6.70') }}"
-#     - ASSISTED_INSTALLER_PORT: "{{ groups['assisted_service'][0].port | default('8090') }}"
 - name: Create cluster and generate Assisted Installer Discovery ISO
   hosts: bastion
   gather_facts: False
@@ -20,8 +17,8 @@
     - CLUSTER_NAME: "{{ cluster_name }}"
     - CLUSTER_ID: "{{ cluster_id }}"
     - BASE_DNS_DOMAIN: "{{ base_dns_domain }}"
-    - ASSISTED_INSTALLER_HOST: "10.198.6.70"
-    - ASSISTED_INSTALLER_PORT: 8090
+    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
     - SSH_PUBLIC_KEY: "{{ ssh_public_key }}"
     - PULL_SECRET: "{{ pull_secret }}"
     - CLUSTER_NETWORK_CIDR: "{{ cluster_network_cidr }}"
@@ -45,8 +42,8 @@
 #     - secure: False
 #     - disconnected: True
 #     - manifests: True
-#     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
-#     - ASSISTED_INSTALLER_PORT: 8090
+#    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+#    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
 
 # #TODO: Apply manifests before cluster installation
 # - name:
@@ -60,8 +57,8 @@
 #     - manifests:
 #        - ran
 #        - du
-#     - ASSISTED_INSTALLER_HOST: "10.198.6.70"
-#     - ASSISTED_INSTALLER_PORT: 8090
+#    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+#    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
   hosts: bastion
@@ -80,8 +77,8 @@
   vars:
     - install: True
     - debug: False
-    - ASSISTED_INSTALLER_HOST: "10.198.6.70"
-    - ASSISTED_INSTALLER_PORT: 8090
+    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
     - CLUSTER_ID: "{{ cluster_id }}"
     - INGRESS_VIP: "{{ ingress_vip }}"
     - API_VIP: "{{ api_vip }}"
