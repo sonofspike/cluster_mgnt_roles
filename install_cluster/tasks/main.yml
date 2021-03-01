@@ -3,18 +3,37 @@
 
 # TODO: Validate cluster settings
 
+- name : Count the hosts to be discovered
+  set_fact:
+    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | length }}"
+
+- name: Join list for workers and masters
+  set_fact:
+    nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
+    inventory_nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
+
 # Monitor hosts discovery
-- name: Wait for 20 min until the hosts are discovered
+- name: Wait for 20 min until all the hosts are discovered
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
     status_code: [200, 201]
     return_content: True
   register: cluster
-  until: "cluster.json.host_networks[0].cidr is defined"
+  until: cluster.json.hosts | length == inventory_nodes | length
   retries: 20
   delay: 60
   when: install | bool == True
+
+- name: Patch discovered hosts
+  include_tasks: hosts_discovery.yml
+  with_items:
+    - "{{ cluster.json.hosts }}"
+  loop_control:
+    loop_var: discovered_host
+  no_log: True
+
+- meta: end_play
 
 # Patch the cluster with the API Virtual IP
 - name: Patch cluster with API Virtual IP

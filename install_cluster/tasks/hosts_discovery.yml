@@ -1,0 +1,45 @@
+---
+# tasks file for install_cluster/hosts_discovery
+
+- name: Identify the hosts
+  set_fact:
+    host_inventory: "{{ discovered_host.inventory }}"
+    host_href: "{{ discovered_host.href }}"
+    host_id: "{{ discovered_host.id }}"
+    host_name: "node-{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
+    host_role: "auto-assign"
+
+- name: Identify the host interfaces
+  set_fact:
+    host_interfaces: "{{ host_inventory.interfaces }}"
+
+- name : Identify the host name and role
+  set_fact:
+    host_name: "{{ item.0 }}"
+    host_role: "{{ hostvars[item.0]['role'] }}"
+  when: hostvars[item.0]['mac'] is defined and hostvars[item.0]['mac'] == item.1.mac_address
+  loop: "{{ inventory_nodes | product(host_interfaces) | list }}"
+  no_log: True
+
+- name : Prepare hosts name and role for {{ host_name }}
+  set_fact:
+    host:
+      id: "{{ host_id }}"
+      hostname: "{{ host_name }}"
+      role: "{{ host_role }}"
+  when: host_name is defined or host_role is defined
+
+- name: Set host name and role for {{ host_name }}
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    method: PATCH
+    url_username: "{{ HTTP_AUTH_USERNAME }}"
+    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    body_format: json
+    status_code: [201]
+    return_content: True
+    body: {
+        "hosts_names": [ "{{ host }}" ],
+        "hosts_roles": [ "{{ host }}" ]
+    }
+  register: http_reply

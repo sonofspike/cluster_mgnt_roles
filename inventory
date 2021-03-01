@@ -4,9 +4,6 @@
 # Required configuration variables for Assisted Install Installations         #
 ###############################################################################
 
-# Base domain, i.e. example.com
-domain="rdc-mtl.ran.lan"
-
 # Name of the cluster, i.e. openshift
 cluster_name="ldc-griffintown"
 

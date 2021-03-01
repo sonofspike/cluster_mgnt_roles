@@ -1,6 +1,7 @@
 ---
 # file: install_cluster.yml
-- hosts: kaloom-infra
+- hosts: bastion
+  gather_facts: False
   roles:
     - install_cluster
   vars:
