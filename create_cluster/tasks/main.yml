@@ -45,6 +45,7 @@
     content: "{{ cluster_id }}"
     dest: cluster.txt
   delegate_to: localhost
+  become: no
   when: create | bool == True
 
 
@@ -66,6 +67,7 @@
     content: "{{ discovery_ignition.json }}"
     dest: discovery-ignition-before.txt
   delegate_to: localhost
+  become: no
 
 ##### TO REMOVE ####
 
@@ -121,6 +123,7 @@
     content: "{{ discovery_ignition.json }}"
     dest: discovery-ignition.txt
   delegate_to: localhost
+  become: no
 
 #### patch cluster install config on restricted network environments ###
 
@@ -141,6 +144,7 @@
     content: "{{ install_config.json }}"
     dest: install-config.txt
   delegate_to: localhost
+  become: no
 
 - name: Load patch for install config
   set_fact:
@@ -183,6 +187,7 @@
     content: "{{ install_config.json }}"
     dest: patched-config.txt
   delegate_to: localhost
+  become: no
 
 #TODO: Apply manifests before cluster installation
 

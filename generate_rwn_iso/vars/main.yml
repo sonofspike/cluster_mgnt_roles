@@ -1,17 +1,5 @@
 ---
 # vars file for generate_rwn_iso
 
-#ASSISTED_INSTALLER_HOST: ""
-#ASSISTED_INSTALLER_PORT: 8090
-#ASSISTED_INSTALLER_BASE_URL: ""
-
-#HTTP_STORE_HOST: ""
-#HTTP_STORE_PORT: 8888
-
-#HTTP_STORE_AUTH_USERNAME: ""
-#HTTP_STORE_AUTH_PASSWORD: ""
-
-#URL_MIRROR_DOWNLOAD_RHCOS_LIVE_ISO: ""
-#DOWNLOAD_DEST_PATH: ""
-
-#SSH_PUBLIC_KEY: ""
+ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"

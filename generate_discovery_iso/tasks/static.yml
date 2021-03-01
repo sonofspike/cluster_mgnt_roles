@@ -1,0 +1,17 @@
+---
+# tasks file for generate_discovery_iso with static IPs
+
+- name: Get {{ item }} ip config
+  set_fact:
+    item_ips_config:
+      - mac: "{{ hostvars[item]['mac'] }}"
+        ip: "{{ hostvars[item]['ip'] }}"
+        mask: "{{ hostvars[item]['mask'] }}"
+        gateway: "{{ hostvars[item]['gateway'] }}"
+        dns: "{{ hostvars[item]['dns'] }}"
+  when: hostvars[item]['mac'] is defined
+
+- name: Add {{ item }} ip config
+  set_fact:
+    static_ips_config: "{{ static_ips_config }} + {{ item_ips_config }}"
+  when: item_ips_config is defined

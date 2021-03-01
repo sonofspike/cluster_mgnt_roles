@@ -1,14 +1,5 @@
 ---
 # vars file for generate_iso
 
-#ASSISTED_INSTALLER_HOST: ""
-#ASSISTED_INSTALLER_PORT: 8090
-#ASSISTED_INSTALLER_BASE_URL: ""
-
-#HTTP_AUTH_USERNAME: "test"
-#HTTP_AUTH_PASSWORD: "test"
-
-#SSH_PUBLIC_KEY: ""
-
-#HTTP_STORE_HOST: ""
-#HTTP_STORE_PORT: 8888
+ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
