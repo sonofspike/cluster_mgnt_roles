@@ -12,7 +12,7 @@
     - create: True
     - generate: True
     - download: True
-    - disconnected: True
+    - disconnected: "{{ use_mirror }}"
     - manifests: True
     - CLUSTER_NAME: "{{ cluster_name }}"
     - CLUSTER_ID: "{{ cluster_id }}"
