@@ -20,7 +20,7 @@
     body_format: json
     status_code: [201]
     return_content: True
-    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}" }
+    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}", "image_type": "full-iso" }
   when: generate | bool == True
   register: http_reply
 
