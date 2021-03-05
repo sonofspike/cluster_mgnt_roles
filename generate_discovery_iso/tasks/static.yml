@@ -5,10 +5,11 @@
   set_fact:
     item_ips_config:
       - mac: "{{ hostvars[item]['mac'] }}"
-        ip: "{{ hostvars[item]['ip'] }}"
-        mask: "{{ hostvars[item]['mask'] }}"
-        gateway: "{{ hostvars[item]['gateway'] }}"
-        dns: "{{ hostvars[item]['dns'] }}"
+        ipv4_config:
+          ip: "{{ hostvars[item]['ip'] }}"
+          mask: "{{ hostvars[item]['mask'] }}"
+          gateway: "{{ hostvars[item]['gateway'] }}"
+          dns: "{{ hostvars[item]['dns'] }}"
   when: hostvars[item]['mac'] is defined
 
 - name: Add {{ item }} ip config
