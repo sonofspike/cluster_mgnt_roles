@@ -84,3 +84,29 @@
     - INGRESS_VIP: "{{ ingress_vip }}"
     - API_VIP: "{{ api_vip }}"
     - VIP_DHCP_ALLOCATION: "{{ vip_dhcp_allocation }}"
+
+- name: Monitoring hosts installation
+  hosts: masters, workers
+  gather_facts: False
+  strategy: free
+  roles:
+    - monitor_host
+  vars:
+    - debug: True
+    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
+    - CLUSTER_ID: "{{ cluster_id }}"
+
+# TODO: once completed grap cluster credentials
+- name: Monitoring cluster installation
+  hosts: bastion
+  gather_facts: False
+  roles:
+    - monitor_cluster
+  vars:
+    - debug: True
+    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
+    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
+    - CLUSTER_ID: "{{ cluster_id }}"
+
+
