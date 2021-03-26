@@ -67,7 +67,12 @@ bastion ansible_ssh_user=root ansible_ssh_host=10.198.6.70
 #supermicro-infra ansible_ssh_user=ran ansible_ssh_host=172.24.118.250
 #rhpool-infra ansible_ssh_user=root ansible_ssh_host=10.1.196.40
 
-#Options for vendor include: Dell, HPE, SuperMicro, Lenovo, KVM
+# 3 masters nodes are mandatory, workers nodes are optional
+# each node must be identify with an unique name and the following paratmers
+# role, mac, ip, bmc_address, bmc_user, bmc_password are mandatory parameters
+# vendor parameter is mandatory, options include: Dell, HPE, SuperMicro, Lenovo, KVM
+# ip, mask, gateway, dns are mandatory parameters for static IP, othewise use ip=dhcp
+
 # Master nodes
 [masters]
 master0-ldc-griffintown bmc_address=10.198.6.63:8000 mac=3c:fd:fe:78:ab:00 ip=10.198.6.30

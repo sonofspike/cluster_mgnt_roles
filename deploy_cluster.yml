@@ -62,8 +62,9 @@
 #    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
-  hosts: bastion
+  hosts: masters, workers
   gather_facts: False
+  strategy: free
   roles:
     - boot_iso
   vars:

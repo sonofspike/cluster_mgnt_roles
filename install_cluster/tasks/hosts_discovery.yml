@@ -1,19 +1,40 @@
 ---
 # tasks file for install_cluster/hosts_discovery
 
-- name: Identify the hosts
+- name: Wait for 10 min until the node {{ discovered_host.id }} discovery is done
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ discovered_host.id }}"
+    method: GET
+    status_code: [200, 201]
+    return_content: True
+  register: host
+  until: host.json.inventory is defined
+  retries: 10
+  delay: 60
+  when: discovered_host.inventory is not defined
+
+- name: Identify the discovered host {{ discovered_host.id }}
   set_fact:
-    host_inventory: "{{ discovered_host.inventory }}"
-    host_href: "{{ discovered_host.href }}"
-    host_id: "{{ discovered_host.id }}"
-    host_name: "node-{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
+    host: "{{ host.json }}"
+  when: discovered_host.inventory is not defined
+
+- name: Identify the discovered host {{ discovered_host.id }}
+  set_fact:
+    host: "{{ discovered_host }}"
+  when: discovered_host.inventory is defined
+
+- name: Identify the host {{ host.id }} properties
+  set_fact:
+    host_inventory: "{{ host.inventory }}"
+    host_id: "{{ host.id }}"
+    host_name: "{{ host.requested_hostname | default('node' + lookup('password', '/dev/null chars=ascii_lowercase,digits length=8')) }}"
     host_role: "auto-assign"
 
-- name: Identify the host interfaces
+- name: Identify the host {{ host.id }} interfaces
   set_fact:
-    host_interfaces: "{{ host_inventory.interfaces }}"
+   host_interfaces: "{{ host_inventory.interfaces }}"
 
-- name : Identify the host name and role
+- name : Set host name and role for {{ host.id }}
   set_fact:
     host_name: "{{ item.0 }}"
     host_role: "{{ hostvars[item.0]['role'] }}"

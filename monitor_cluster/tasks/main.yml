@@ -9,7 +9,7 @@
     status_code: [200, 201]
     return_content: True
   register: cluster
-  until: cluster.json.status == 'installed' or cluster.json.status == 'error' or cluster.json.status == 'cancelled'
+  until: cluster.json.status in ['installed', 'error', 'cancelled']
   retries: 60
   delay: 60
   delegate_to: bastion

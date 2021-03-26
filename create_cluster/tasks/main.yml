@@ -146,6 +146,7 @@
   delegate_to: localhost
   become: no
 
+#TODO: the mirror certificate needs padding (4 spaces) at the begining of each line
 - name: Load patch for install config
   set_fact:
     patch_install_config: "{{ lookup('template', 'patch-install-config.j2') | from_yaml | to_json(ensure_ascii=False) | string }}"

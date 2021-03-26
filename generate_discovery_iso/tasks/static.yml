@@ -1,17 +1,44 @@
 ---
 # tasks file for generate_discovery_iso with static IPs
 
-- name: Get {{ item }} ip config
+- name: Get {{ item }} primary ip config
   set_fact:
     item_ips_config:
       - mac: "{{ hostvars[item]['mac'] }}"
-        ip: "{{ hostvars[item]['ip'] }}"
-        mask: "{{ hostvars[item]['mask'] }}"
-        gateway: "{{ hostvars[item]['gateway'] }}"
-        dns: "{{ hostvars[item]['dns'] }}"
-  when: hostvars[item]['mac'] is defined
+        ipv4_config:
+          ip: "{{ hostvars[item]['ip'] }}"
+          mask: "{{ hostvars[item]['mask'] }}"
+          gateway: "{{ hostvars[item]['gateway'] }}"
+          dns: "{{ hostvars[item]['dns'] }}"
+  when: hostvars[item]['mac'] is defined and 
+        hostvars[item]['ip'] is defined and
+        hostvars[item]['ip'] != 'dhcp' and
+        hostvars[item]['mask'] is defined and
+        hostvars[item]['gateway'] is defined and
+        hostvars[item]['dns'] is defined
 
-- name: Add {{ item }} ip config
+- name: Add {{ item }} primary ip config
   set_fact:
     static_ips_config: "{{ static_ips_config }} + {{ item_ips_config }}"
   when: item_ips_config is defined
+
+- name: Get {{ item }} secondary ip config
+  set_fact:
+    item_ips_config_2:
+      - mac: "{{ hostvars[item]['mac2'] }}"
+        ipv4_config:
+          ip: "{{ hostvars[item]['ip2'] }}"
+          mask: "{{ hostvars[item]['mask2'] }}"
+          gateway: "{{ hostvars[item]['gateway2'] }}"
+          dns: "{{ hostvars[item]['dns2'] }}"
+  when: hostvars[item]['mac2'] is defined and 
+        hostvars[item]['ip2'] is defined and
+        hostvars[item]['ip2'] != 'dhcp' and
+        hostvars[item]['mask2'] is defined and
+        hostvars[item]['gateway2'] is defined and
+        hostvars[item]['dns2'] is defined
+
+- name: Add {{ item }} secondary ip config
+  set_fact:
+    static_ips_config: "{{ static_ips_config }} + {{ item_ips_config_2 }}"
+  when: item_ips_config_2 is defined
