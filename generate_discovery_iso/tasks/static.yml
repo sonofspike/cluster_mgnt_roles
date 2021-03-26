@@ -10,7 +10,7 @@
           mask: "{{ hostvars[item]['mask'] }}"
           gateway: "{{ hostvars[item]['gateway'] }}"
           dns: "{{ hostvars[item]['dns'] }}"
-  when: hostvars[item]['mac'] is defined and 
+  when: hostvars[item]['mac'] is defined and
         hostvars[item]['ip'] is defined and
         hostvars[item]['ip'] != 'dhcp' and
         hostvars[item]['mask'] is defined and
@@ -31,7 +31,7 @@
           mask: "{{ hostvars[item]['mask2'] }}"
           gateway: "{{ hostvars[item]['gateway2'] }}"
           dns: "{{ hostvars[item]['dns2'] }}"
-  when: hostvars[item]['mac2'] is defined and 
+  when: hostvars[item]['mac2'] is defined and
         hostvars[item]['ip2'] is defined and
         hostvars[item]['ip2'] != 'dhcp' and
         hostvars[item]['mask2'] is defined and
