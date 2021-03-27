@@ -8,10 +8,11 @@
 #   - okd.assisted_installer.host_iso
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
-  connection: local
-  hosts: masters:workers
+  hosts: masters, workers
+  gather_facts: False
+  strategy: free
   roles:
-  - boot_iso
+    - boot_iso
   vars:
-    - debug: True
+    - debug: False
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"

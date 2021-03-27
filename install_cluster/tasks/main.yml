@@ -20,7 +20,7 @@
     status_code: [200, 201]
     return_content: True
   register: cluster
-  until: cluster.json.hosts | length == inventory_nodes | length
+  until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
   retries: 20
   delay: 60
   when: install | bool == True
@@ -83,26 +83,4 @@
     var: http_reply.json
   when: debug | bool == True and install | bool == True
 
-# Monitor cluster installation
-- name: Wait for 60 min until the cluster is installed
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    status_code: [200, 201]
-    return_content: True
-  register: cluster
-  until: cluster.json.status == 'installed' or cluster.json.status == 'error' or cluster.json.status == 'cancelled'
-  retries: 60
-  delay: 60
 
-- name: "Fail installation because user cancelled (ERROR)"
-  fail:
-    msg: "Cluster installation failed - Reset the installation process to return to the configuration and try again"
-  when: cluster.json.status == 'error'
-
-- name: "Fail installation because user cancelled (CANCELLED)"
-  fail:
-    msg: "Installation was canceled by user - Reset the installation process to return to the configuration and try again"
-  when: cluster.json.status == 'cancelled'
-
-# TODO: once completed grap cluster credentials

@@ -5,33 +5,34 @@
   fail:
     msg="Missing argument: this playbook requires 'boot_iso' to be defined with the URL of the ISO to boot the systems"
   when: boot_iso_url is not defined
+  delegate_to: bastion
 
 - include_tasks: dell.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'Dell'
+  when: hostvars[inventory_hostname]['vendor'] == 'Dell'
+  args:
+    apply:
+      delegate_to: bastion
 
 - include_tasks: hpe.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'HPE'
+  when: hostvars[inventory_hostname]['vendor'] == 'HPE'
+  args:
+    apply:
+      delegate_to: bastion
 
 - include_tasks: supermicro.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'SuperMicro'
+  when: hostvars[inventory_hostname]['vendor'] == 'SuperMicro'
+  args:
+    apply:
+      delegate_to: bastion
 
 - include_tasks: lenovo.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'Lenovo'
+  when: hostvars[inventory_hostname]['vendor'] == 'Lenovo'
+  args:
+    apply:
+      delegate_to: bastion
 
 - include_tasks: kvm.yml
-  with_items:
-    - "{{ groups['masters'] }}"
-    - "{{ groups['workers'] | default([]) }}"
-  when: hostvars[item]['vendor'] == 'KVM'
+  when: hostvars[inventory_hostname]['vendor'] == 'KVM'
+  args:
+    apply:
+      delegate_to: bastion
