@@ -3,7 +3,7 @@
   block:
     - name: Discovery iDRAC versions for Dell hardware
       containers.podman.podman_container:
-        name: "{{ hostvars[item]['bmc_address'] }}-rac-version"
+        name: "{{ hostvars[inventory_hostname]['bmc_address'] }}-rac-version"
         network: host
         image: quay.io/dphillip/racadm-image
         state: started
@@ -13,11 +13,11 @@
           [
             "-v",
             "-r",
-            "{{ hostvars[item]['bmc_address'] }}",
+            "{{ hostvars[inventory_hostname]['bmc_address'] }}",
             "-u",
-            "{{ hostvars[item]['bmc_user'] }}",
+            "{{ hostvars[inventory_hostname]['bmc_user'] }}",
             "-p",
-            "{{ hostvars[item]['bmc_password'] }}",
+            "{{ hostvars[inventory_hostname]['bmc_password'] }}",
             "-i",
             "{{ boot_iso_url }}",
           ]
