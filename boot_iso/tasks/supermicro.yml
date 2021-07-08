@@ -11,7 +11,7 @@
 
     - name: Unmount SuperMicro ISO
       uri:
-        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.UnMount"
+        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VirtualMedia/CD1/Actions/VirtualMedia.EjectMedia"
         user: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
         password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
         method: POST
@@ -22,38 +22,23 @@
         body_format: json
         validate_certs: no
         force_basic_auth: yes
-        return_content: yes
-
-# TODO Fix the path to the ISO for http {{ boot_iso_url }}
-    - name: Patching Host and Path for Mounting ISO
-      uri:
-        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VM1/CfgCD"
-        user: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
-        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
-        method: PATCH
-        headers:
-          content-type: application/json
-          Accept: application/json
-        body: "{\"Host\": \"{{ groups['assisted_installer'][0] }}\", \"Path\": \"\\\\share\\\\installer-image.iso\"}"
-        body_format: json
-        force_basic_auth: yes
-        validate_certs: no
         return_content: yes
 
     - name: Mount SuperMicro ISO
       uri:
-        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.Mount"
+        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VirtualMedia/CD1/Actions/VirtualMedia.InsertMedia"
         user: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
         password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
         method: POST
         headers:
           content-type: application/json
           Accept: application/json
-        body: {}
+        body: {"Image":"{{ boot_iso_url }}"}
         body_format: json
         validate_certs: no
         force_basic_auth: yes
         return_content: yes
+        status_code: 202
 
     - name: Set Boot for the SuperMicro
       uri:
