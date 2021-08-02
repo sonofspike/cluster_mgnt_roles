@@ -29,8 +29,8 @@ The typical installation and utilization of this playbook is to launch it from t
    - The following can be used for accomplishing operator-specific mirroring after the registry is stood up: <https://github.com/openshift-telco/ocp4-offline-operator-mirror>
 
 ### The Usual OpenShift Infrastructure Requirements
-
-4. DHCP for giving out addresses to nodes that will become part of the cluster
+3. NTP server, use chrony 
+4. DHCP (dnsmasq) for giving out addresses to nodes that will become part of the cluster
    - Future updates to this playbook will support static IP address assignment
 5. API endpoint (API Virtual IP)
 6. Wildcard domain `*.apps.<clusterName>.<baseDomain>` (Ingress VIP)
