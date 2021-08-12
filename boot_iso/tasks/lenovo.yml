@@ -45,7 +45,7 @@
         password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
         method: PATCH
         body_format: json
-        body: {"Image":"{{ boot_iso_url }}", "Inserted": true}
+        body: {"Image": "{{ boot_iso_url }}", "Inserted": true}
         status_code: [200, 204]
         force_basic_auth: yes
         validate_certs: no
@@ -123,3 +123,4 @@
     - debug:
         var: redfish_reply
       when: debug | bool == True
+

@@ -5,8 +5,13 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER_CREDENTIALS }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ TOKEN }}"
+      Content-Type: "application/json"
+    force_basic_auth: yes 
     status_code: [200]
     return_content: True
+  when: sno is False
   register: http_reply
 
 - debug:
@@ -24,14 +29,19 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ TOKEN }}"
+      Content-Type: "application/json"
+    force_basic_auth: yes 
     status_code: [200]
     return_content: True
+  when: sno is False
   register: http_reply
 
 - debug:
     msg:
       - "Cluster api vip: {{ http_reply.json[0].api_vip }}"
-  when: debug | bool == True
+  when: debug | bool == True 
 
 - name: Set cluster API properties
   set_fact:

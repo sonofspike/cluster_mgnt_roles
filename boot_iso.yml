@@ -9,7 +9,7 @@
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
   hosts: masters, workers
-  gather_facts: False
+  gather_facts: True
   strategy: free
   roles:
     - boot_iso

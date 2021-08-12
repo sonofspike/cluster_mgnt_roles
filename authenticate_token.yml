@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  strategy: free
+  become: false
+  roles:
+    - get_token
+

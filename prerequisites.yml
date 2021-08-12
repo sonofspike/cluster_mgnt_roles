@@ -1,8 +1,12 @@
 ---
 - hosts: localhost
+  gather_facts: false
   connection: local
   strategy: free
   tasks:
+
+
+
     - name: Get stats of pull_secret.txt
       stat:
         path: "pull_secret.txt"
@@ -26,16 +30,16 @@
       when: sshpublickey.stat.exists != true
 
 
-    - name: Get stats of mirror_certificate.txt
-      stat:
-        path: "mirror_certificate.txt"
-      register: mirror_certificate
+#    - name: Get stats of mirror_certificate.txt
+#      stat:
+#        path: "mirror_certificate.txt"
+#      register: mirror_certificate
 
-    - name: Check if the mirror_certificate.txt exists
-      fail:
-        msg:
-        - "The required pull secret mirror_certificate.txt is required but does not exist"
-      when: mirror_certificate.stat.exists != true
+#    - name: Check if the mirror_cer#tificate.txt exists
+#      fail:
+#        msg:
+#        - "The required pull secret mirror_certificate.txt is required but does not exist"
+#      when: mirror_certificate.stat.exists != true
 
 
     - name: Get stats of inventory

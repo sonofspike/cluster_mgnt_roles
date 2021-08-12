@@ -1,13 +1,30 @@
 ---
 # file: deploy_cluster.yml
-
-- name: Create cluster and generate Assisted Installer Discovery ISO
+#- hosts: bastion
+#  vars_prompt:
+#    - name: mode
+#      prompt: Are you deploying on-prem or online?
+#      private: no
+- name: deploy_cluster.yml
   hosts: bastion
-  gather_facts: False
-  roles:
-    - create_cluster
-    - generate_discovery_iso
-  vars:
+  gather_facts: True
+  tasks:
+  - name: Create cluster and generate Assisted Installer Discovery ISO
+    block:
+      - include_role:
+          name: sonofspike.ocm.get_token
+      - include_role:
+          name: sonofspike.ocm.refresh_token
+      - include_role:
+          name: create_cluster
+      - include_role:
+          name: generate_discovery_iso 
+
+      
+
+
+    vars:
+    - token_epoch: "{{ token_epoch }}"
     - secure: False
     - create: True
     - generate: True
@@ -28,38 +45,15 @@
     - VIP_DHCP_ALLOCATION: "{{ vip_dhcp_allocation }}"
     - INGRESS_VIP: "{{ ingress_vip }}"
     - API_VIP: "{{ api_vip }}"
+    - FEATURE: "{{ feature }}"
     - MACHINE_NETWORK_CIDR: "{{ machine_network_cidr }}"
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
     - NTP_SERVER: "{{ ntp_server }}"
 
-# #TODO: Patch the cluster for disconnected installation
-# - name:
-#   hosts: kaloom-infra
-#   gather_facts: False
-#   roles:
-#     - patch_cluster
-#   vars:
-#     - secure: False
-#     - disconnected: True
-#     - manifests: True
-#    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
-#    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
-
-# #TODO: Apply manifests before cluster installation
-# - name:
-#   hosts: kaloom-infra
-#   gather_facts: False
-#   roles:
-#       - patch_cluster
-#   vars:
-#     - secure: False
-#     - manifest: True
-#     - manifests:
-#        - ran
-#        - du
-#    - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
-#    - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
+    rescue:
+      - import_role:
+          name: sonofspike.ocm.cleanup_cluster
 
 - name: Mounting, Booting the Assisted Installer Discovery ISO
   hosts: masters, workers
@@ -109,5 +103,4 @@
     - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
     - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
     - CLUSTER_ID: "{{ cluster_id }}"
-
 

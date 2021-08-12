@@ -3,7 +3,7 @@
 
 - name: Load manifest
   set_fact:
-    manifest: "{{ lookup('template', '{{ item }}.j2' ) }}"
+    manifest: "{{ lookup('template', '{{ item }}.j2' )  | from_yaml | to_json(ensure_ascii=False) | string }}"
   when: manifests | bool == True
 
 - debug:
@@ -14,6 +14,10 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
     method: POST
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Accept: "application/json"
+    force_basic_auth: yes
     status_code: [201]
     return_content: True
     body_format: json

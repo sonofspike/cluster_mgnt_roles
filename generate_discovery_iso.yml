@@ -3,6 +3,7 @@
 - hosts: bastion
   roles:
     - generate_discovery_iso
+    
   vars:
     - download: False
     - secure: False

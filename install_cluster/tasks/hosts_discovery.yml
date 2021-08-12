@@ -5,6 +5,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ discovered_host.id }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200, 201]
     return_content: True
   register: host
@@ -12,6 +15,9 @@
   retries: 10
   delay: 60
   when: discovered_host.inventory is not defined
+
+- debug:
+    var: host.json
 
 - name: Identify the discovered host {{ discovered_host.id }}
   set_fact:
@@ -54,8 +60,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: PATCH
-    url_username: "{{ HTTP_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     body_format: json
     status_code: [201]
     return_content: True
@@ -64,3 +71,4 @@
         "hosts_roles": [ "{{ host }}" ]
     }
   register: http_reply
+  when: not sno

@@ -15,12 +15,14 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
     method: POST
-    url_username: "{{ HTTP_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
+    force_basic_auth: yes 
     body_format: json
     status_code: [201]
     return_content: True
-    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}", "image_type": "full-iso" }
+    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}", "image_type": "minimal-iso" }
   when: generate | bool == True
   register: http_reply
 
@@ -31,6 +33,10 @@
 - name: Download discovery ISO
   get_url:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
+    force_basic_auth: yes 
     dest: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
   when: download | bool == True
   register: http_reply
@@ -43,8 +49,10 @@
   uri:
     url: "{{ URL_HTTP_STORE_UPLOAD_IMAGE }}/{{ CLUSTER_ID }}.iso"
     method: PUT
-    url_username: "{{ HTTP_STORE_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_STORE_AUTH_PASSWORD }}"
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
+    force_basic_auth: yes 
     src: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
     status_code: [200]
   when: upload | bool == True

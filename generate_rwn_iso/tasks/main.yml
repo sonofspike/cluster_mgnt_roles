@@ -27,6 +27,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200]
     return_content: True
   register: http_reply

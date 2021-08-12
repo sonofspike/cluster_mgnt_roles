@@ -1,0 +1,8 @@
+---
+- hosts: bastion
+  strategy: free
+  become: false
+  roles:
+    - sonofspike.ocm.get_token
+    - sonofspike.ocm.refresh_token
+    - sonofspike.ocm.delete_cluster

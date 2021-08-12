@@ -1,0 +1,14 @@
+---
+# file: deploy_cluster.yml
+#- hosts: bastion
+#  vars_prompt:
+#    - name: mode
+#      prompt: Are you deploying on-prem or online?
+#      private: no
+- name: cleanup
+  hosts: bastion
+  gather_facts: True
+  tasks:
+    - include_role:
+        name: sonofspike.ocm.cleanup_cluster
+   

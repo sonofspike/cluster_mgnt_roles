@@ -6,8 +6,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
     method: POST
-    url_username: "{{ HTTP_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     body_format: json
     status_code: [201]
     return_content: True
@@ -17,8 +18,8 @@
         "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
         "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
         "cluster_network_host_prefix": 23,
+        "high_availability_mode": "None",
         "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
-        "ingress_vip": "{{ INGRESS_VIP }}",
         "pull_secret": "{{ PULL_SECRET | to_json }}",
         "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
         "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
@@ -33,7 +34,7 @@
 
 - debug:
     var: http_reply.json
-  when: debug and create  | bool == True
+#when: debug and create  | bool == True
 
 - name: Set the cluster ID
   set_fact:
@@ -48,12 +49,16 @@
   become: no
   when: create | bool == True
 
-
+- import_role:
+    name: generate_discovery_iso
 ##### TO REMOVE ####
 - name: Get discovery ignition file
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200]
     return_content: True
   register: discovery_ignition
@@ -71,45 +76,15 @@
 
 ##### TO REMOVE ####
 
-#### patch discovery ignition on restricted network environments ###
-
-- name: Load patch for search registries
-  set_fact:
-    search_registries: "{{ lookup('template', 'patch-search-registries.j2') }}"
-  when: disconnected | bool == True
-
-- debug:
-    var: search_registries
-  when: debug and disconnected  | bool == True
-
-- name: Load patch for discovery ignition
-  set_fact:
-    patch_discovery_ignition: "{{ lookup('template', 'patch-discovery-ignition.j2') }}"
-  when: disconnected | bool == True
-
-- debug:
-    var: patch_discovery_ignition
-  when: debug and disconnected  | bool == True
-
-- name: Patch discovery ignition
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
-    method: PATCH
-    status_code: [201]
-    return_content: True
-    body_format: json
-    body: { "config": "{{ patch_discovery_ignition | to_json(ensure_ascii=False) | string }}" }
-  when: disconnected | bool == True
-  register: http_reply
-
-- debug:
-    var: http_reply
-  when: debug and disconnected  | bool == True
+##
 
 - name: Get discovery ignition file
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200]
     return_content: True
   register: discovery_ignition
@@ -131,6 +106,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200]
     return_content: True
   register: install_config
@@ -146,11 +124,15 @@
   delegate_to: localhost
   become: no
 
-#TODO: the mirror certificate needs padding (4 spaces) at the begining of each line
 - name: Load patch for install config
   set_fact:
-    patch_install_config: "{{ lookup('template', 'patch-install-config.j2') | from_yaml | to_json(ensure_ascii=False) | string }}"
+    patch_install_config: "{{ lookup('template', 'patch-install-config.j2') | from_yaml }}"
   when: disconnected | bool == True
+
+- name: Add network_type to patch_install_config
+  set_fact:
+    patch_install_config: "{{ lookup('template', 'patch-network-type.j2') | from_yaml | combine(patch_install_config | default({}))  }}"
+  when: network_type is defined
 
 - debug:
     var: patch_install_config
@@ -160,10 +142,13 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: PATCH
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [201]
     return_content: True
     body_format: json
-    body: "{{ patch_install_config | to_json(ensure_ascii=False) | string }}"
+    body: "{{ patch_install_config | to_json(ensure_ascii=False) | string | to_json(ensure_ascii=False) | string }}"
   when: disconnected | bool == True
   register: http_reply
 
@@ -175,6 +160,10 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
+
     status_code: [200]
     return_content: True
   register: install_config
@@ -197,4 +186,15 @@
   with_items:
     - 50-worker-nm-fix-ipv6.yml
     - 50-worker-remove-ipi-leftovers.yml
+    - 02-fix-ingress-config.yml
+    - 01-master-node-scheduler.yml
+  when: manifests  | bool == True
+
+- name: Apply manifests before cluster installation
+  include_tasks: manifest.yml
+  with_items:
+    - 50-worker-nm-fix-ipv6.yml
+    - 50-worker-remove-ipi-leftovers.yml
+    - 02-fix-ingress-config.yml
+    - 01-master-node-scheduler.yml
   when: manifests  | bool == True
