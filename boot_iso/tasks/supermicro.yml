@@ -1,6 +1,12 @@
 ---
 - name: Mount Live ISO, Boot into Live ISO (SuperMicro servers)
   block:
+    - name: Check boot iso is not in webroot
+      assert:
+        that:
+          - boot_iso_url is match("https?://.+/.+/.+")
+        fail_msg: "Boot iso should not be in webroot"
+
     - name: SuperMicro Power ON
       community.general.redfish_command:
         category: Systems
@@ -8,6 +14,17 @@
         baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
         username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
         password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+
+    - name: Check if there is a ISO mounted on the SuperMicro
+      uri:
+        url: "https://{{ hostvars[inventory_hostname]['bmc_address'] }}/redfish/v1/Managers/1/VirtualMedia/CD1"
+        user: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+        method: GET
+        validate_certs: no
+        force_basic_auth: yes
+        return_content: yes
+      register: cd1_contents
 
     - name: Unmount SuperMicro ISO
       uri:
@@ -23,6 +40,7 @@
         validate_certs: no
         force_basic_auth: yes
         return_content: yes
+      when: cd1_contents.json.Inserted | bool == True
 
     - name: Mount SuperMicro ISO
       uri:
@@ -33,7 +51,7 @@
         headers:
           content-type: application/json
           Accept: application/json
-        body: {"Image":"{{ boot_iso_url }}"}
+        body: {"Image": "{{ boot_iso_url }}"}
         body_format: json
         validate_certs: no
         force_basic_auth: yes

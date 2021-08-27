@@ -1,36 +1,68 @@
 ---
 # tasks file for create_cluster
-
+  
 # TODO: use the variable for cluster_network_host_prefix
-- name: Create cluster
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    body_format: json
-    status_code: [201]
-    return_content: True
-    body: {
-        "name": "{{ CLUSTER_NAME }}",
-        "openshift_version": "{{ OPENSHIFT_VERSION }}",
-        "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
-        "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
-        "cluster_network_host_prefix": 23,
-        "high_availability_mode": "None",
-        "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
-        "pull_secret": "{{ PULL_SECRET | to_json }}",
-        "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
-        "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
-        "api_vip": "{{ API_VIP }}",
-        "http_proxy": "{{ HTTP_PROXY }}",
-        "https_proxy": "{{ HTTPS_PROXY }}",
-        "no_proxy": "{{ NO_PROXY }}",
-        "additional_ntp_source": "{{ NTP_SERVER }}"
-    }
-  when: create | bool == True
-  register: http_reply
+- name: create cluster
+  block:
+  - name: Create cluster
+    uri:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
+      method: POST
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      body_format: json
+      status_code: [201]
+      return_content: True
+      body: {
+          "name": "{{ CLUSTER_NAME }}",
+          "openshift_version": "{{ OPENSHIFT_VERSION }}",
+          "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
+          "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
+          "cluster_network_host_prefix": 23,
+          "high_availability_mode": "None",
+          "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
+          "pull_secret": "{{ PULL_SECRET | to_json }}",
+          "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
+          "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+          "http_proxy": "{{ HTTP_PROXY }}",
+          "https_proxy": "{{ HTTPS_PROXY }}",
+          "no_proxy": "{{ NO_PROXY }}",
+          "additional_ntp_source": "{{ NTP_SERVER }}"
+      }
+    when: create | bool == True
+    register: http_reply
+  rescue:
+    - include_role:
+        name: sonofspike.ocm.refresh_token
+    - name: Create cluster
+      uri:
+        url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ access_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        status_code: [201]
+        return_content: True
+        body: {
+            "name": "{{ CLUSTER_NAME }}",
+            "openshift_version": "{{ OPENSHIFT_VERSION }}",
+            "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
+            "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
+            "cluster_network_host_prefix": 23,
+            "high_availability_mode": "None",
+            "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
+            "pull_secret": "{{ PULL_SECRET | to_json }}",
+            "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
+            "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+            "http_proxy": "{{ HTTP_PROXY }}",
+            "https_proxy": "{{ HTTPS_PROXY }}",
+            "no_proxy": "{{ NO_PROXY }}",
+            "additional_ntp_source": "{{ NTP_SERVER }}"
+        }
+      when: create | bool == True
+      register: http_reply
 
 - debug:
     var: http_reply.json
@@ -49,8 +81,12 @@
   become: no
   when: create | bool == True
 
+## For Infra-env ID to be generated. ISO will not be downloaded
 - import_role:
     name: generate_discovery_iso
+  vars:
+    download: False
+
 ##### TO REMOVE ####
 - name: Get discovery ignition file
   uri:
@@ -75,8 +111,6 @@
   become: no
 
 ##### TO REMOVE ####
-
-##
 
 - name: Get discovery ignition file
   uri:
@@ -198,3 +232,23 @@
     - 02-fix-ingress-config.yml
     - 01-master-node-scheduler.yml
   when: manifests  | bool == True
+
+
+# Patch the cluster with the API Virtual IP
+- name: Patch cluster with Machine Network CIDR
+  uri:
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
+    status_code: [201]
+    return_content: True
+    body_format: json
+    body: {
+          "machine_network_cidr": "{{ MACHINE_NETWORK_CIDR }}"
+    }
+  when: 
+    - sno | bool == True 
+      
+  register: http_reply

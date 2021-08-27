@@ -1,11 +1,16 @@
 ---
 # tasks file for monitor_cluster
+- include_role:
+    name: sonofspike.ocm.refresh_token
 
 # Monitor cluster installation
 - name: Wait for 60 min until the cluster is installed
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "json"
     status_code: [200, 201]
     return_content: True
   register: cluster

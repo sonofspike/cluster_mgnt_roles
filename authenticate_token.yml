@@ -1,8 +1,5 @@
 ---
-- hosts: localhost
-  connection: local
-  strategy: free
-  become: false
+- hosts: bastion
   roles:
-    - get_token
-
+    - sonofspike.ocm.delete_cluster
+    

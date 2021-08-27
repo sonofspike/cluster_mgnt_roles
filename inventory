@@ -1,6 +1,6 @@
 ```
 [all:vars]
-
+import=settings.ini
 ###############################################################################
 # Required configuration variables for Assisted Install Installations         #
 ###############################################################################
@@ -27,6 +27,7 @@ ingress_vip="10.198.7.133"
 # Cluster network CIDR
 cluster_network_cidr="10.128.0.0/14"
 
+cluster_network_host="10.198.7.134"
 # Cluster network host prefix
 cluster_network_host_prefix=23
 
@@ -75,6 +76,9 @@ ntp_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
 [bastions]
 bastion ansible_ssh_user=root ansible_ssh_host=10.198.7.130
+
+[manage_token]
+bastion_token ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
 
 # 3 masters nodes are mandatory, workers nodes are optional

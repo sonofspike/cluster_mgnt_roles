@@ -1,16 +1,12 @@
 ---
+ 
 - name: install cluster
   block:
   - name: install cluster from cluster.yml
     include_tasks: cluster.yml
-  rescue:
+  #rescue:
 
-
-    - import_role:
-        name: sonofspike.ocm.get_token
-    - import_role:
-
-        name: sonofspike.ocm.refresh_token
-    - import_role:
-
-        name: sonofspike.ocm.delete_cluster
+#   - import_role:
+#       name: sonofspike.ocm.get_token
+#   - import_role:
+#      name: sonofspike.ocm.refresh_token

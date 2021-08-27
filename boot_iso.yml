@@ -14,5 +14,5 @@
   roles:
     - boot_iso
   vars:
-    - debug: False
+    - debug: True
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"

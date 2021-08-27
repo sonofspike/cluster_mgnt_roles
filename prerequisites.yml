@@ -40,8 +40,12 @@
 #        msg:
 #        - "The required pull secret mirror_certificate.txt is required but does not exist"
 #      when: mirror_certificate.stat.exists != true
-
-
+    - name: Check oc cli installed 
+      command: oc status
+      
+    - name: Check if podman installed 
+      command: podman ps --all
+      
     - name: Get stats of inventory
       stat:
         path: "inventory"
@@ -52,7 +56,7 @@
         msg:
         - "The required pull secret inventory is required but does not exist"
       when: inventory.stat.exists != true
-
+    
     - name: Final validation
       debug:
         msg: "You should be ready to go and execute ansible-playbook -i inventory deploy_cluster.yml"

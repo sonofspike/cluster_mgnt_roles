@@ -1,10 +1,6 @@
 ---
-# file: deploy_cluster.yml
-#- hosts: bastion
-#  vars_prompt:
-#    - name: mode
-#      prompt: Are you deploying on-prem or online?
-#      private: no
+
+    
 - name: deploy_cluster.yml
   hosts: bastion
   gather_facts: True
@@ -14,15 +10,9 @@
       - include_role:
           name: sonofspike.ocm.get_token
       - include_role:
-          name: sonofspike.ocm.refresh_token
-      - include_role:
           name: create_cluster
       - include_role:
           name: generate_discovery_iso 
-
-      
-
-
     vars:
     - token_epoch: "{{ token_epoch }}"
     - secure: False
@@ -50,7 +40,6 @@
     - DOWNLOAD_DEST_FILE: "{{ discovery_iso_name }}"
     - DOWNLOAD_DEST_PATH: "/opt/http_store/data"
     - NTP_SERVER: "{{ ntp_server }}"
-
     rescue:
       - import_role:
           name: sonofspike.ocm.cleanup_cluster
@@ -65,12 +54,24 @@
     - debug: False
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"
 
-- name: Installing the cluster
+- name: pause to let bmc reboot
   hosts: bastion
   gather_facts: False
+  tasks:
+  - name: pause
+    pause:
+      minutes: 8
+    delegate_to: bastion
+  
+
+- name: Installing the cluster
+  hosts: bastion
+  gather_facts: True
   roles:
+    - sonofspike.ocm.get_token
     - install_cluster
   vars:
+    - access_token: "{{ access_token }}"
     - install: True
     - debug: False
     - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
@@ -82,9 +83,10 @@
 
 - name: Monitoring hosts installation
   hosts: masters, workers
-  gather_facts: False
+  gather_facts: True
   strategy: free
   roles:
+    - sonofspike.ocm.get_token
     - monitor_host
   vars:
     - debug: True
@@ -103,4 +105,3 @@
     - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
     - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
     - CLUSTER_ID: "{{ cluster_id }}"
-

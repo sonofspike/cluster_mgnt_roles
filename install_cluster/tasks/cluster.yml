@@ -5,42 +5,49 @@
 
 - name : Count the hosts to be discovered
   set_fact:
-    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | length }}"
+    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | default([]) | length }}"
 
 - name: Join list for workers and masters
   set_fact:
-    #nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
-    nodes: "{{ groups['masters'] | default([]) }}"
+    nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
+    inventory_nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
 
-    #inventory_nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
-    inventory_nodes: "{{ groups['masters'] | default([]) }}"
-
-- name: Pause to let BMC reboot
-  pause:
-    prompt: "Enter"
-    echo: no
-
-
-- include_role:
-    name: sonofspike.ocm.get_token
-- include_role:
-    name: sonofspike.ocm.refresh_token
 
 # Monitor hosts discovery
 - name: Wait for 20 min until all the hosts are discovered
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200, 201]
-    return_content: True
-  register: cluster
-  until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
-  retries: 20
-  delay: 60
-  when: install | bool == True
+  block:
+  - name: Wait for host
+    uri:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+      method: GET
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      status_code: [200, 201]
+      return_content: True
+    register: cluster
+    until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
+    retries: 20
+    delay: 60
+    when: install | bool == True 
+  rescue:
+  - include_role:
+      name: sonofspike.ocm.refresh_token
+
+  - name: Wait for host
+    uri:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+      method: GET
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      status_code: [200, 201]
+      return_content: True
+    register: cluster
+    until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
+    retries: 20
+    delay: 60
+    when: install | bool == True 
 
 - debug:
     var: cluster.json
@@ -55,6 +62,50 @@
 
 # Patch the cluster with the API Virtual IP
 - name: Patch cluster with API Virtual IP
+  block:
+  - name: patch cluster  
+    uri:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+      method: PATCH
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      status_code: [201]
+      return_content: True
+      body_format: json
+      body: {
+          "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+          "ingress_vip": "{{ INGRESS_VIP }}",
+          "api_vip": "{{ API_VIP }}"
+      }
+    when: 
+      - install | bool == True and
+        sno == False
+    register: http_reply
+  rescue:
+    - include_role:
+        name: sonofspike.ocm.refresh_token
+    - name: patch cluster  
+      uri:
+        url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+        method: PATCH
+        headers:
+          Authorization: "Bearer {{ access_token }}"
+          Content-Type: "application/json"
+        status_code: [201]
+        return_content: True
+        body_format: json
+        body: {
+            "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
+            "ingress_vip": "{{ INGRESS_VIP }}",
+            "api_vip": "{{ API_VIP }}"
+        }
+      when: 
+        - install | bool == True and
+          sno == False
+      register: http_reply
+
+- name: Patch cluster with host networks (SNO)
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: PATCH
@@ -65,18 +116,19 @@
     return_content: True
     body_format: json
     body: {
-        "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
-        "ingress_vip": "{{ INGRESS_VIP }}",
-        "api_vip": "{{ API_VIP }}"
+        "host_networks": "{{ CLUSTER_NETWORK_HOST }}"
     }
   when: 
     - install | bool == True and
-      sno == False
+      sno == True
   register: http_reply
 
 - debug:
     var: http_reply.json
   when: debug | bool == True
+
+#- import_role:
+#    name: sonofspike.ocm.refresh_token
 
 # Monitor cluster discovery
 - name: Wait for 20 min until the cluster is ready
@@ -96,19 +148,37 @@
 
 # Install cluster
 - name: Install cluster
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/actions/install"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [202]
-    return_content: True
-    body_format: json
-    body: { }
-  when: install | bool == True
-  register: http_reply
-
+  block:
+  - name: install cluster
+    uri:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/actions/install"
+      method: POST
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      status_code: [202]
+      return_content: True
+      body_format: json
+      body: { }
+    when: install | bool == True
+    register: http_reply
+  rescue:
+    - include_role:
+        name: sonofspike.ocm.refresh_token
+    - name: install cluster
+      uri:
+        url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/actions/install"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ access_token }}"
+          Content-Type: "application/json"
+        status_code: [202]
+        return_content: True
+        body_format: json
+        body: { }
+      when: install | bool == True
+      register: http_reply
+      
 - name: Debug http_reply
   debug:
     var: http_reply.json

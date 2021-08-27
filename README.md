@@ -1,4 +1,4 @@
-# OpenShift 4 Management Cluster Seed Playbook
+# OpenShift 4 Management Cluster Seed Playbook (Online API Assisted Installer)
 
 > :heavy_exclamation_mark: *Red Hat does not provide commercial support for the content of this repo*
 
@@ -20,8 +20,8 @@ The typical installation and utilization of this playbook is to launch it from t
 
 ### Services
 
-1. On premise version of the Assisted Installer, deployed and available.
-   - The following can be used: <https://github.com/sonofspike/assisted-service-onprem>
+1. Load your api token on cloud.redhat.com/openshift
+   - store it in a text file called "api_token.txt"
 2. An available HTTP server, such as Nginx or Apache, deployed and available
    - The following can be used: <https://github.com/sonofspike/http_store>
 3. An available container registry if a restricted network installation is desired, to be deployed and available with OpenShift content mirrored to it
