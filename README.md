@@ -12,19 +12,18 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ##############################################################################
 ```
 
-This playbook is responsible for automating the creation of an OpenShift Container Platform (4.6) cluster using the Developer Preview version of the OpenShift Assisted Installer. Virtual and bare metal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io` and `redhat.com` directly without a proxy), as well as a restricted network installation.
+This playbook is responsible for automating the creation of an OpenShift Container Platform (4.8) cluster using the Developer Preview version of the OpenShift Assisted Installer. Virtual and bare metal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io` and `redhat.com` directly without a proxy), as well as a restricted network installation.
 
 The typical installation and utilization of this playbook is to launch it from the system architect's laptop, outside of the environment that is desired to be provisioned. The pre-requisite services required are typically hosted on a "bastion" or infrastructure system that hosts system services required by this playbook. It is up to the system architect to provide these services at this time.
 
 ## Pre-requisites before you get started
-
+1. Install this collection from `https://github.com/sonofspike/collections`
+2. These collections are roles that help retrieve and refresh the API access_token to make calls to the Online Assisted Installer
 ### Services
 
-1. Load your api token on cloud.redhat.com/openshift
-   - store it in a text file called "api_token.txt"
-2. An available HTTP server, such as Nginx or Apache, deployed and available
+1. An available HTTP server, such as Nginx or Apache, deployed and available
    - The following can be used: <https://github.com/sonofspike/http_store>
-3. An available container registry if a restricted network installation is desired, to be deployed and available with OpenShift content mirrored to it
+2. An available container registry if a restricted network installation is desired, to be deployed and available with OpenShift content mirrored to it
    - The following can be used for the mirror itself: <https://github.com/sonofspike/registry_mirror>
    - The following can be used for accomplishing operator-specific mirroring after the registry is stood up: <https://github.com/openshift-telco/ocp4-offline-operator-mirror>
 
@@ -43,8 +42,8 @@ You can check the file prerequisites have been fulfilled by running `ansible-pla
    - Store this as `pull_secret.txt` in the playbook base directory
 2. Your SSH Public Key that will be injected into the nodes `~/.ssh/authorized_keys` directory
    - Store this as `ssh_public_key.txt` in the playbook base directory
-3. The trusted SSL signed self-certificate to be used for the registry, which must be injected into the installation as a trusted repository
-   - Store this as `mirror_certificate.txt` in the playbook base directory. Do not forget to pad this entire file with four spaces for every line, even the BEGIN and END CERTIFICATE lines
+3.  Load your api token on cloud.redhat.com/openshift
+   - store it in a text file called `api_token.txt`
 
 ## Running
 
