@@ -19,6 +19,7 @@ The typical installation and utilization of this playbook is to launch it from t
 ## Pre-requisites before you get started
 1. Install this collection from `https://github.com/sonofspike/collections`
 2. These collections are roles that help retrieve and refresh the API access_token to make calls to the Online Assisted Installer
+3. The JWT expires every 15 minuets (900 Seconds) and refreshes on API call failure.
 ### Services
 
 1. An available HTTP server, such as Nginx or Apache, deployed and available
