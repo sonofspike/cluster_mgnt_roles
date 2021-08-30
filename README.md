@@ -15,6 +15,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 This playbook is responsible for automating the creation of an OpenShift Container Platform (4.8) cluster using the Developer Preview version of the OpenShift Assisted Installer. Virtual and bare metal machines have been tested in a regular deployment (where systems can reach `registry.redhat.io` and `redhat.com` directly without a proxy), as well as a restricted network installation.
 
 The typical installation and utilization of this playbook is to launch it from the system architect's laptop, outside of the environment that is desired to be provisioned. The pre-requisite services required are typically hosted on a "bastion" or infrastructure system that hosts system services required by this playbook. It is up to the system architect to provide these services at this time.
+API Reference: https://generator.swagger.io/?url=https://raw.githubusercontent.com/openshift/assisted-service/master/swagger.yaml
 
 ## Pre-requisites before you get started
 1. Install this collection from `https://github.com/sonofspike/collections`
