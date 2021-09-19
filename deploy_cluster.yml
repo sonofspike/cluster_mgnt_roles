@@ -5,6 +5,11 @@
   hosts: bastion
   gather_facts: True
   tasks:
+  - name: get token
+    get_token:
+      api_base_url: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+      api_token: "{{ api_token }}"
+    
   - name: Create cluster and generate Assisted Installer Discovery ISO
     block:
       - include_role:

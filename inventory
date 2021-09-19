@@ -77,6 +77,10 @@ ntp_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 [bastions]
 bastion ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
+[localhost]
+ansible_host=localhost ansible_connection=local 
+[localhost:vars]
+ansible_python_interpreter=/usr/bin/python3
 [manage_token]
 bastion_token ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 

@@ -4,65 +4,27 @@
 # TODO: use the variable for cluster_network_host_prefix
 - name: create cluster
   block:
-  - name: Create cluster
-    uri:
-      url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
-      method: POST
-      headers:
-        Authorization: "Bearer {{ access_token }}"
-        Content-Type: "application/json"
-      body_format: json
-      status_code: [201]
-      return_content: True
-      body: {
-          "name": "{{ CLUSTER_NAME }}",
-          "openshift_version": "{{ OPENSHIFT_VERSION }}",
-          "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
-          "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
-          "cluster_network_host_prefix": 23,
-          "high_availability_mode": "None",
-          "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
-          "pull_secret": "{{ PULL_SECRET | to_json }}",
-          "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
-          "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
-          "http_proxy": "{{ HTTP_PROXY }}",
-          "https_proxy": "{{ HTTPS_PROXY }}",
-          "no_proxy": "{{ NO_PROXY }}",
-          "additional_ntp_source": "{{ NTP_SERVER }}"
-      }
-    when: create | bool == True
-    register: http_reply
-  rescue:
-    - include_role:
-        name: sonofspike.ocm.refresh_token
-    - name: Create cluster
-      uri:
-        url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
-        method: POST
-        headers:
-          Authorization: "Bearer {{ access_token }}"
-          Content-Type: "application/json"
-        body_format: json
-        status_code: [201]
-        return_content: True
-        body: {
-            "name": "{{ CLUSTER_NAME }}",
-            "openshift_version": "{{ OPENSHIFT_VERSION }}",
-            "base_dns_domain": "{{ BASE_DNS_DOMAIN }}",
-            "cluster_network_cidr": "{{ CLUSTER_NETWORK_CIDR }}",
-            "cluster_network_host_prefix": 23,
-            "high_availability_mode": "None",
-            "service_network_cidr": "{{ SERVICE_NETWORK_CIDR }}",
-            "pull_secret": "{{ PULL_SECRET | to_json }}",
-            "ssh_public_key": "{{ SSH_PUBLIC_KEY }}",
-            "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
-            "http_proxy": "{{ HTTP_PROXY }}",
-            "https_proxy": "{{ HTTPS_PROXY }}",
-            "no_proxy": "{{ NO_PROXY }}",
-            "additional_ntp_source": "{{ NTP_SERVER }}"
-        }
-      when: create | bool == True
-      register: http_reply
+  - name: Create Cluster
+    sonofspike.ocm.create_cluster_test:
+      name: "{{ CLUSTER_NAME }}"
+      url_assisted_installer: "{{ ASSISTED_INSTALLER_BASE_URL }}"
+      access_token: "{{ access_token }}"
+      openshift_version: "{{ OPENSHIFT_VERSION }}"
+      base_dns_domain: "{{ BASE_DNS_DOMAIN }}"
+      cluster_network_cidr: "{{ CLUSTER_NETWORK_CIDR }}"
+      cluster_network_host_prefix: 23
+      high_availability_mode: "None"
+      service_network_cidr: "{{ SERVICE_NETWORK_CIDR }}"
+      pull_secret: "{{ PULL_SECRET | to_json }}"
+      ssh_public_key: "{{ SSH_PUBLIC_KEY }}"
+      vip_dhcp_allocation: "{{ VIP_DHCP_ALLOCATION | lower | bool }}"
+      http_proxy: "{{ HTTP_PROXY }}"
+      https_proxy: "{{ HTTPS_PROXY }}"
+      no_proxy: "{{ NO_PROXY }}"
+      ntp_source: "{{ NTP_SERVER }}"
+      
+
+        
 
 - debug:
     var: http_reply.json
@@ -176,7 +138,7 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
     method: PATCH
-    headers:
+    headers: 
       Authorization: "Bearer {{ access_token }}"
       Content-Type: "application/json"
     status_code: [201]
@@ -197,7 +159,6 @@
     headers:
       Authorization: "Bearer {{ access_token }}"
       Content-Type: "application/json"
-
     status_code: [200]
     return_content: True
   register: install_config
