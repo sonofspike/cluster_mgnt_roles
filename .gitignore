@@ -4,3 +4,8 @@ __stuff/**
 .history/
 roles_1
 .vscode
+fetched
+*fetched
+fetched/ssh_keys
+*.pub
+.github

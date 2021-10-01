@@ -9,26 +9,35 @@
 - debug:
     var: manifest
   when: debug and manifests  | bool == True
+#- name: apply manifest
+#- name: Apply manifest
+ # uri:
+ #   url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
+ #   method: POST
+  #  headers:
+ #     Authorization: "Bearer {{ access_token }}"
+ #     Accept: "application/json"
+ #   force_basic_auth: yes
+ #   status_code: [201]
+  #  return_content: True
+  #  body_format: json
+  #  body: {
+  #    "folder": "manifests",
+  #    "file_name": "{{ item }}",
+  #    "content": "{{ manifest | string | b64encode }}"
+  #  }
+  #when: manifests | bool == True
+  #register: http_reply
 
-- name: Apply manifest
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Accept: "application/json"
-    force_basic_auth: yes
-    status_code: [201]
-    return_content: True
-    body_format: json
-    body: {
-      "folder": "manifests",
-      "file_name": "{{ item }}",
-      "content": "{{ manifest | string | b64encode }}"
-    }
-  when: manifests | bool == True
-  register: http_reply
-
+- name: apply manifest
+  sonofspike.ocm.apply_manifest:
+    manifests: "manifests"
+    file_name: "{{ item }}"
+    content: "{{ manifest | string | b64encode }}"
+    url_apply_manifest: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
+    api_token: "{{ API_TOKEN}}"
+    access_token: "{{ access_token }}"
+  register: response
 - debug:
-    var: http_reply
+    var: response
   when: debug and manifests  | bool == True

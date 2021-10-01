@@ -5,10 +5,11 @@
 - name: create cluster
   block:
   - name: Create Cluster
-    sonofspike.ocm.create_cluster_test:
+    sonofspike.ocm.create_cluster:
       name: "{{ CLUSTER_NAME }}"
       url_assisted_installer: "{{ ASSISTED_INSTALLER_BASE_URL }}"
       access_token: "{{ access_token }}"
+      api_token: "{{ API_TOKEN }}"
       openshift_version: "{{ OPENSHIFT_VERSION }}"
       base_dns_domain: "{{ BASE_DNS_DOMAIN }}"
       cluster_network_cidr: "{{ CLUSTER_NETWORK_CIDR }}"
@@ -22,17 +23,16 @@
       https_proxy: "{{ HTTPS_PROXY }}"
       no_proxy: "{{ NO_PROXY }}"
       ntp_source: "{{ NTP_SERVER }}"
-      
+    register: response
 
         
-
 - debug:
-    var: http_reply.json
+    var: response.json
 #when: debug and create  | bool == True
 
 - name: Set the cluster ID
   set_fact:
-    cluster_id: "{{ http_reply.json.id }}"
+    cluster_id: "{{ response.json.id }}"
   when: create | bool == True
 
 - name: "Save cluster_id"
@@ -50,24 +50,34 @@
     download: False
 
 ##### TO REMOVE ####
-- name: Get discovery ignition file
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200]
-    return_content: True
+#- name: Get discovery ignition file
+ # uri:
+  #  url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
+  #  method: GET
+  #  headers:
+  #    Authorization: "Bearer {{ access_token }}"
+ #     Content-Type: "application/json"
+ #   status_code: [200]
+ #   return_content: True
+ # register: discovery_ignition
+
+- name: Generate disc ig file
+  sonofspike.ocm.get_discovery_ignition:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    cluster_id: "{{ cluster_id }}"
   register: discovery_ignition
 
 - debug:
-    var: discovery_ignition.json
-  when: debug | bool == True
+    var: discovery_ignition.result
+ # when: debug | bool == True
+
+- ansible.builtin.set_fact:
+    discovery_ignition_json: "{{ discovery_ignition.result }}"
 
 - name: "Copy discovery_ignition cluster_id"
   copy:
-    content: "{{ discovery_ignition.json }}"
+    content: "{{ discovery_ignition_json }}"
     dest: discovery-ignition-before.txt
   delegate_to: localhost
   become: no
@@ -98,20 +108,26 @@
 
 #### patch cluster install config on restricted network environments ###
 
-- name: Get install-config file
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200]
-    return_content: True
+#- name: Get install-config file
+#  uri:
+ #   url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
+#    method: GET
+ #   headers:
+#      Authorization: "Bearer {{ access_token }}"
+#      Content-Type: "application/json"
+#    status_code: [200]
+#    return_content: True
+#  register: install_config
+- name: get install config
+  sonofspike.ocm.get_install_config:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    cluster_id: "{{ cluster_id }}"
+    url_config_install_cluster: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
   register: install_config
-
 - debug:
     var: install_config.json
-  when: debug | bool == True
+  #when: debug | bool == True
 
 - name: "Copy install_config"
   copy:
@@ -134,33 +150,39 @@
     var: patch_install_config
   when: debug and disconnected  | bool == True
 
-- name: Patch install config
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
-    method: PATCH
-    headers: 
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [201]
-    return_content: True
-    body_format: json
-    body: "{{ patch_install_config | to_json(ensure_ascii=False) | string | to_json(ensure_ascii=False) | string }}"
+- name: patch install config
+  sonofspike.ocm.patch_cluster:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    cluster_id: "{{ cluster_id }}"
+    url_config_install_cluster: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
+    patch_install: "{{ patch_install_config | to_json(ensure_ascii=False) | string | to_json(ensure_ascii=False) | string }}"
+  register: install_config
   when: disconnected | bool == True
-  register: http_reply
 
-- debug:
-    var: http_reply
-  when: debug and disconnected  | bool == True
+#- name: Patch install config
+ # uri:
+  #  url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
+  #  method: PATCH
+  #  headers: 
+ #     Authorization: "Bearer {{ access_token }}"
+ #     Content-Type: "application/json"
+ #   status_code: [201]
+ #   return_content: True
+ #   body_format: json
+ #   body: "{{ patch_install_config | to_json(ensure_ascii=False) | string | to_json(ensure_ascii=False) | string }}"
+ # when: disconnected | bool == True
+#  register: http_reply
 
-- name: Get install-config file
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200]
-    return_content: True
+#- debug:
+  #  var: http_reply
+  #when: debug and disconnected  | bool == True
+- name: get install conf
+  sonofspike.ocm.get_install_config:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    cluster_id: "{{ cluster_id }}"
+    url_config_install_cluster: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
   register: install_config
 
 - debug:

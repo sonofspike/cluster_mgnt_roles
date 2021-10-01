@@ -1,8 +1,0 @@
----
-- name: deploy_cluster.yml
-  hosts: bastion
-  tasks:
-  - name: get token
-    get_token:
-      api_base_url: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
-      api_token: "{{ api_token }}"

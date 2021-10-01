@@ -45,7 +45,8 @@ You can check the file prerequisites have been fulfilled by running `ansible-pla
    - Store this as `ssh_public_key.txt` in the playbook base directory
 3. The trusted SSL signed self-certificate to be used for the registry, which must be injected into the installation as a trusted repository
    - Store this as `mirror_certificate.txt` in the playbook base directory. Do not forget to pad this entire file with four spaces for every line, even the BEGIN and END CERTIFICATE lines
-
+4. You have installed <https://github.com/sonofspike/collections/tree/feature/plugin_modules>
+   - run the command ```ansible-galaxy collection install /Path/To/Repository --force```
 ## Running
 
 When you're ready to execute this, do the following
