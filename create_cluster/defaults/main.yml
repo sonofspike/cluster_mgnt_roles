@@ -5,12 +5,14 @@ secure: True
 create: False
 debug: False
 disconnected: False
-
+upload: False
 ASSISTED_INSTALLER_HOST: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 ASSISTED_INSTALLER_PORT: 8090
 ASSISTED_INSTALLER_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ ASSISTED_INSTALLER_HOST }}:{{ ASSISTED_INSTALLER_PORT }}/api/assisted-install/v1"
 URL_ASSISTED_INSTALLER_CLUSTERS: "{{ ASSISTED_INSTALLER_BASE_URL }}/clusters"
-
+sno: False
+API_TOKEN: "{{ api_token }}"
+discovery_ignition_json: "{{ discovery_ignition_json }}"
 # HTTP_AUTH_USERNAME: "test"
 # HTTP_AUTH_PASSWORD: "test"
 #
@@ -28,6 +30,5 @@ HTTPS_PROXY: ""
 NO_PROXY: ""
 # SSH_PUBLIC_KEY: ""
 # PULL_SECRET: ""
-
 ADDITIONAL_TRUST_BUNDLE: ""
 IMAGE_CONTENT_SOURCES: ""

@@ -5,6 +5,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ discovered_host.id }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200, 201]
     return_content: True
   register: host
@@ -50,17 +53,11 @@
       role: "{{ host_role }}"
   when: host_name is defined or host_role is defined
 
-- name: Set host name and role for {{ host_name }}
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: PATCH
-    url_username: "{{ HTTP_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_AUTH_PASSWORD }}"
-    body_format: json
-    status_code: [201]
-    return_content: True
-    body: {
-        "hosts_names": [ "{{ host }}" ],
-        "hosts_roles": [ "{{ host }}" ]
-    }
+- name: Set HostName for {{ host_name }}
+  sonofspike.ocm.set_hostname:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    host_names:  "{{ host }}" 
+    url_set_host_name: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    hosts_roles: "{{ host }}" 
   register: http_reply

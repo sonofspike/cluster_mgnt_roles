@@ -1,12 +1,14 @@
 imageContentSources:
 - mirrors:
   - {{ mirror_registry }}/ocp4/openshift4
-  source: quay.io/openshift-release-dev/ocp-release
+  source: quay.io/ocp-release-dev/ocp-release
 - mirrors:
   - {{ mirror_registry }}/ocp4/openshift4
-  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+  source: quay.ioocp-v4.0-art-dev
 - mirrors:
   - {{ mirror_registry }}/ocpmetal
   source: quay.io/ocpmetal
 additionalTrustBundle: |
 {{ mirror_certificate }}
+
+

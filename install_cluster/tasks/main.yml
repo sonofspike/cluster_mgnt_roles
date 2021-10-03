@@ -3,27 +3,32 @@
 
 # TODO: Validate cluster settings
 
+- name: install cluster from cluster.yml
+  include_tasks: cluster.yml
+  when: sno | bool == True
+
 - name : Count the hosts to be discovered
   set_fact:
-    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | length }}"
+    inventory_hosts: "{{ groups['masters'] }}"
+  when: sno | bool == False
 
 - name: Join list for workers and masters
   set_fact:
-    nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
-    inventory_nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
+    nodes: "{{ groups['masters'] | default([]) }}"
+    inventory_nodes: "{{ groups['masters'] | default([]) }}"
+  when: sno | bool == False
 
-# Monitor hosts discovery
 - name: Wait for 20 min until all the hosts are discovered
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    status_code: [200, 201]
-    return_content: True
+  sonofspike.ocm.discover_host:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    url_assisted_installer_cluster: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
   register: cluster
   until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
   retries: 20
   delay: 60
-  when: install | bool == True
+  when: install | bool == True and sno | bool == False
+
 
 - name: Patch discovered hosts
   include_tasks: hosts_discovery.yml
@@ -32,6 +37,8 @@
   loop_control:
     loop_var: discovered_host
   no_log: True
+  when: sno | bool == False
+
 
 # Patch the cluster with the API Virtual IP
 - name: Patch cluster with API Virtual IP
@@ -46,12 +53,12 @@
         "ingress_vip": "{{ INGRESS_VIP }}",
         "api_vip": "{{ API_VIP }}"
     }
-  when: install | bool == True
+  when: install | bool == True and sno | bool == False
   register: http_reply
 
 - debug:
     var: http_reply.json
-  when: debug | bool == True
+  when: install | bool == True and sno | bool == False
 
 # Monitor cluster discovery
 - name: Wait for 20 min until the cluster is ready
@@ -64,7 +71,7 @@
   until: "cluster.json.status == 'ready'"
   retries: 20
   delay: 60
-  when: install | bool == True
+  when: install | bool == True and sno | bool == False
 
 # Install cluster
 - name: Install cluster
@@ -75,12 +82,15 @@
     return_content: True
     body_format: json
     body: { }
-  when: install | bool == True
+  when: install | bool == True and sno | bool == False
   register: http_reply
 
 - name: Debug http_reply
   debug:
     var: http_reply.json
-  when: debug | bool == True and install | bool == True
+  when: install | bool == True and sno | bool == False
 
 
+
+
+##

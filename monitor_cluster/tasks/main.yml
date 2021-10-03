@@ -6,6 +6,9 @@
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "json"
     status_code: [200, 201]
     return_content: True
   register: cluster

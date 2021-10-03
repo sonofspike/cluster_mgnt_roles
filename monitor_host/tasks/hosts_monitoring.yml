@@ -1,10 +1,17 @@
 ---
 # tasks file for hosts_monitoring
+#- include_role: 
+#     name: sonofspike.ocm.get_token
+#     apply:
+#       delegate_to: bastion 
 
 - name: Wait for 60 min until the node {{ host_name }} reboots
   uri:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ host_id }}"
     method: GET
+    headers:
+      Authorization: "Bearer {{ access_token }}"
+      Content-Type: "application/json"
     status_code: [200, 201]
     return_content: True
   register: host
