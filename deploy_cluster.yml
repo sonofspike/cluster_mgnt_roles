@@ -3,11 +3,6 @@
   hosts: bastion
   gather_facts: True
   tasks:
-  - name: get token
-    sonofspike.ocm.get_token:
-      api_base_url: "{{ URL_API_TOKEN }}"
-      api_token: "{{ api_token }}"
-    register: response
 
   - name: get token (role)
     include_role:
