@@ -1,34 +1,29 @@
 ---
 # tasks file for create_cluster
-  
-# TODO: use the variable for cluster_network_host_prefix
-- name: create cluster
-  block:
-  - name: Create Cluster
-    sonofspike.ocm.create_cluster:
-      name: "{{ CLUSTER_NAME }}"
-      url_assisted_installer: "{{ ASSISTED_INSTALLER_BASE_URL }}"
-      access_token: "{{ access_token }}"
-      api_token: "{{ API_TOKEN }}"
-      openshift_version: "{{ OPENSHIFT_VERSION }}"
-      base_dns_domain: "{{ BASE_DNS_DOMAIN }}"
-      cluster_network_cidr: "{{ CLUSTER_NETWORK_CIDR }}"
-      cluster_network_host_prefix: 23
-      high_availability_mode: "None"
-      service_network_cidr: "{{ SERVICE_NETWORK_CIDR }}"
-      pull_secret: "{{ PULL_SECRET | to_json }}"
-      ssh_public_key: "{{ SSH_PUBLIC_KEY }}"
-      vip_dhcp_allocation: "{{ VIP_DHCP_ALLOCATION | lower | bool }}"
-      http_proxy: "{{ HTTP_PROXY }}"
-      https_proxy: "{{ HTTPS_PROXY }}"
-      no_proxy: "{{ NO_PROXY }}"
-      ntp_source: "{{ NTP_SERVER }}"
-    register: response
-
+- name: Create Cluster
+  sonofspike.ocm.create_cluster:
+    name: "{{ CLUSTER_NAME }}"
+    url_assisted_installer: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}"
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    openshift_version: "{{ OPENSHIFT_VERSION }}"
+    base_dns_domain: "{{ BASE_DNS_DOMAIN }}"
+    cluster_network_cidr: "{{ CLUSTER_NETWORK_CIDR }}"
+    cluster_network_host_prefix: "{{ CLUSTER_NETWORK_HOST_PREFIX }}"
+    high_availability_mode: None
+    service_network_cidr: "{{ SERVICE_NETWORK_CIDR }}"
+    pull_secret: "{{ PULL_SECRET | to_json }}"
+    ssh_public_key: "{{ SSH_PUBLIC_KEY }}"
+    vip_dhcp_allocation: "{{ VIP_DHCP_ALLOCATION | lower | bool }}"
+    http_proxy: "{{ HTTP_PROXY }}"
+    https_proxy: "{{ HTTPS_PROXY }}"
+    no_proxy: "{{ NO_PROXY }}"
+    ntp_source: "{{ NTP_SERVER }}"
+  register: response
         
 - debug:
     var: response.json
-#when: debug and create  | bool == True
+  when: debug and create  | bool == True
 
 - name: Set the cluster ID
   set_fact:
@@ -43,25 +38,12 @@
   become: no
   when: create | bool == True
 
-## For Infra-env ID to be generated. ISO will not be downloaded
 - import_role:
     name: generate_discovery_iso
   vars:
     download: False
 
-##### TO REMOVE ####
-#- name: Get discovery ignition file
- # uri:
-  #  url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
-  #  method: GET
-  #  headers:
-  #    Authorization: "Bearer {{ access_token }}"
- #     Content-Type: "application/json"
- #   status_code: [200]
- #   return_content: True
- # register: discovery_ignition
-
-- name: Generate disc ig file
+- name: Generate discovery ignition file
   sonofspike.ocm.get_discovery_ignition:
     access_token: "{{ access_token }}"
     api_token: "{{ API_TOKEN }}"
@@ -70,7 +52,7 @@
 
 - debug:
     var: discovery_ignition.result
- # when: debug | bool == True
+  when: debug | bool == True
 
 - ansible.builtin.set_fact:
     discovery_ignition_json: "{{ discovery_ignition.result }}"
@@ -82,42 +64,18 @@
   delegate_to: localhost
   become: no
 
-##### TO REMOVE ####
-
-- name: Get discovery ignition file
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/discovery-ignition"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200]
-    return_content: True
-  register: discovery_ignition
-
 - debug:
-    var: discovery_ignition.json
+    var: discovery_ignition.result
   when: debug | bool == True
 
-- name: "Copy discovery_ignition.json"
+- name: "Copy discovery_ignition.result"
   copy:
-    content: "{{ discovery_ignition.json }}"
+    content: "{{ discovery_ignition.result }}"
     dest: discovery-ignition.txt
   delegate_to: localhost
   become: no
 
 #### patch cluster install config on restricted network environments ###
-
-#- name: Get install-config file
-#  uri:
- #   url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
-#    method: GET
- #   headers:
-#      Authorization: "Bearer {{ access_token }}"
-#      Content-Type: "application/json"
-#    status_code: [200]
-#    return_content: True
-#  register: install_config
 - name: get install config
   sonofspike.ocm.get_install_config:
     access_token: "{{ access_token }}"
@@ -127,7 +85,6 @@
   register: install_config
 - debug:
     var: install_config.json
-  #when: debug | bool == True
 
 - name: "Copy install_config"
   copy:
@@ -160,23 +117,6 @@
   register: install_config
   when: disconnected | bool == True
 
-#- name: Patch install config
- # uri:
-  #  url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/install-config"
-  #  method: PATCH
-  #  headers: 
- #     Authorization: "Bearer {{ access_token }}"
- #     Content-Type: "application/json"
- #   status_code: [201]
- #   return_content: True
- #   body_format: json
- #   body: "{{ patch_install_config | to_json(ensure_ascii=False) | string | to_json(ensure_ascii=False) | string }}"
- # when: disconnected | bool == True
-#  register: http_reply
-
-#- debug:
-  #  var: http_reply
-  #when: debug and disconnected  | bool == True
 - name: get install conf
   sonofspike.ocm.get_install_config:
     access_token: "{{ access_token }}"
@@ -196,8 +136,6 @@
   delegate_to: localhost
   become: no
 
-#TODO: Apply manifests before cluster installation
-
 - name: Apply manifests before cluster installation
   include_tasks: manifest.yml
   with_items:
@@ -206,32 +144,3 @@
     - 02-fix-ingress-config.yml
     - 01-master-node-scheduler.yml
   when: manifests  | bool == True
-
-- name: Apply manifests before cluster installation
-  include_tasks: manifest.yml
-  with_items:
-    - 50-worker-nm-fix-ipv6.yml
-    - 50-worker-remove-ipi-leftovers.yml
-    - 02-fix-ingress-config.yml
-    - 01-master-node-scheduler.yml
-  when: manifests  | bool == True
-
-
-# Patch the cluster with the API Virtual IP
-- name: Patch cluster with Machine Network CIDR
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}"
-    method: PATCH
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [201]
-    return_content: True
-    body_format: json
-    body: {
-          "machine_network_cidr": "{{ MACHINE_NETWORK_CIDR }}"
-    }
-  when: 
-    - sno | bool == True 
-      
-  register: http_reply

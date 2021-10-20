@@ -3,19 +3,11 @@
   hosts: bastion
   gather_facts: True
   tasks:
-  - name: get token
-    sonofspike.ocm.get_token:
-      api_base_url: "{{ URL_API_TOKEN }}"
-      api_token: "{{ api_token }}"
-    register: response
-
   - name: get token (role)
     include_role:
         name: sonofspike.ocm.get_token
-
   - debug:
       var: response.result
-
   - name: Create cluster and generate Assisted Installer Discovery ISO
     block:
       - include_role:
@@ -23,7 +15,6 @@
       - include_role:
           name: generate_discovery_iso 
     vars:
-    - token_epoch: "{{ token_epoch }}"
     - secure: False
     - create: True
     - generate: True
@@ -63,15 +54,6 @@
     - debug: False
     - boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"
 
-- name: pause to let bmc reboot
-  hosts: bastion
-  gather_facts: False
-  tasks:
-  - name: pause
-    pause:
-      minutes: 8
-    delegate_to: bastion
-  
 - name: Installing the cluster
   hosts: bastion
   gather_facts: True
@@ -107,6 +89,7 @@
   hosts: bastion
   gather_facts: False
   roles:
+    - sonofspike.ocm.get_token
     - monitor_cluster
   vars:
     - debug: True

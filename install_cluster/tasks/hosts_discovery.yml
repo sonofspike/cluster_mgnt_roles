@@ -2,23 +2,21 @@
 # tasks file for install_cluster/hosts_discovery
 
 - name: Wait for 10 min until the node {{ discovered_host.id }} discovery is done
-  uri:
+  sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ discovered_host.id }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200, 201]
-    return_content: True
-  register: host
-  until: host.json.inventory is defined
+    method: "GET"
+    query: None
+    access_token: "{{ access_token }}"
+    api_token: "{{ api_token }}"
+    data: {}
+  register: response
+  until: response.json.inventory is defined
   retries: 10
   delay: 60
-  when: discovered_host.inventory is not defined
 
 - name: Identify the discovered host {{ discovered_host.id }}
   set_fact:
-    host: "{{ host.json }}"
+    host: "{{ response.json }}"
   when: discovered_host.inventory is not defined
 
 - name: Identify the discovered host {{ discovered_host.id }}

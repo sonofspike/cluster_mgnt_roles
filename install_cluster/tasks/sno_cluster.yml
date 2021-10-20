@@ -2,21 +2,15 @@
 # tasks file for install_cluster
 
 # TODO: Validate cluster settings
-
-- name: install cluster from sno_cluster.yml
-  include_tasks: sno_cluster.yml
-  when: sno | bool == True
-
 - name : Count the hosts to be discovered
   set_fact:
-    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | length }}"
-  when: sno | bool == False
+    inventory_hosts: "{{ groups['masters'] | length + groups['workers'] | default([]) | length }}"
 
 - name: Join list for workers and masters
   set_fact:
     nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
-    inventory_nodes: "{{ groups['masters'] | default([]) }}"
-  when: sno | bool == False
+    inventory_nodes: "{{ groups['masters'] + groups['workers'] | default([]) }}"
+
 
 - name: Wait for 20 min until all the hosts are discovered
   sonofspike.ocm.discover_host:
@@ -27,8 +21,11 @@
   until: ( cluster.json.hosts | length == inventory_nodes | length ) and ( cluster.json.status == "pending-for-input")
   retries: 20
   delay: 60
-  when: install | bool == True and sno | bool == False
+  when: install | bool == True
 
+- debug:
+    var: cluster.json
+    
 - name: Patch discovered hosts
   include_tasks: hosts_discovery.yml
   with_items:
@@ -36,27 +33,29 @@
   loop_control:
     loop_var: discovered_host
   no_log: True
-  when: sno | bool == False
 
 # Patch the cluster with the API Virtual IP
-- name: Patch cluster with API Virtual IP
+
+- name: Patch cluster with host networks (SNO)
   sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
     method: "PATCH"
-    access_token: "{{ access_token }}"
     query: None
+    access_token: "{{ access_token }}"
     api_token: "{{ api_token }}"
     data: {
-        "vip_dhcp_allocation": "{{ VIP_DHCP_ALLOCATION | lower | bool }}",
-        "ingress_vip": "{{ INGRESS_VIP }}",
-        "api_vip": "{{ API_VIP }}"
+        "host_networks": "{{ CLUSTER_NETWORK_HOST }}",
+        "machine_network_cidr": "{{ MACHINE_NETWORK_CIDR }}"
     }
-  when: install | bool == True and sno | bool == False
+  when: 
+    - install | bool == True and
+      sno == True
   register: response
 
 - debug:
     var: response.json
-  when: install | bool == True and sno | bool == False
+  when: debug | bool == True
+
 
 # Monitor cluster discovery
 - name: Wait for 20 min until the cluster is ready
@@ -71,8 +70,7 @@
   until: "response.json.status == 'ready'"
   retries: 20
   delay: 60
-  when: install | bool == True and sno | bool == False
-
+  when: install | bool == True 
 # Install cluster
 - name: Install cluster
   sonofspike.ocm.rest_api_call:
@@ -82,10 +80,12 @@
     data: {}
     access_token: "{{ access_token }}"
     api_token: "{{ api_token }}"
-  when: install | bool == True and sno | bool == False
+  when: install | bool == True 
   register: response
 
 - name: Debug response
   debug:
     var: response.json
-  when: install | bool == True and sno | bool == False
+  when: install | bool == True 
+
+

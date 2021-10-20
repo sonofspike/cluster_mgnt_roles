@@ -12,7 +12,7 @@
 
 - name: apply manifest
   sonofspike.ocm.apply_manifest:
-    manifests: "manifests"
+    manifest: "manifests"
     file_name: "{{ item }}"
     content: "{{ manifest | string | b64encode }}"
     url_apply_manifest: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"

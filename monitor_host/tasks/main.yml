@@ -5,15 +5,14 @@
   delegate_to: bastion
   
 - name : Get cluster status during installation
-  uri:
+  sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200, 201]
-    return_content: True
-  register: cluster
+    method: "GET"
+    data: {}
+    query: None
+    access_token: "{{ access_token }}"
+    api_token: "{{ api_token }}"
+  register: response
   delegate_to: bastion
 
 - name: Identify the host

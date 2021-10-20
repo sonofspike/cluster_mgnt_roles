@@ -8,8 +8,13 @@ import=settings.ini
 # Name of the cluster, i.e. openshift
 cluster_name="sno"
 
+URL_API_TOKEN="https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+
+#install with single node openshift
+SNO=False
+
 # Base DNS domain
-base_dns_domain="mtl.ran.lab"
+base_dns_domain="sos-mtl.ran.lab"
 
 # Available subnets *
 # 10.198.7.128/26 (10.198.7.129-10.198.7.190)
@@ -18,17 +23,15 @@ machine_network_cidr= "10.198.7.128/26"
 # Allocate virtual IPs via DHCP server
 vip_dhcp_allocation=False
 # API virtual IP
-api_vip="10.198.7.132"
-
-URL_API_TOKEN="https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+api_vip="10.198.7.152"
 
 # Ingress virtual IP
-ingress_vip="10.198.7.133"
+ingress_vip="10.198.7.153"
 
 # Cluster network CIDR
 cluster_network_cidr="10.128.0.0/14"
 
-cluster_network_host="10.198.7.134"
+cluster_network_host="10.198.7.163"
 # Cluster network host prefix
 cluster_network_host_prefix=23
 
@@ -54,6 +57,9 @@ ASSISTED_INSTALLER_BASE_URL="https://api.openshift.com/api/assisted-install/v1"
 # Load cluster file, this is generated automatically
 cluster_id="{{ lookup('file', './cluster.txt') }}"
 
+#discovery iso image type
+IMAGE_TYPE="minimal-iso"
+
 # Version of the openshift-installer, undefined or empty results in the playbook failing.
 openshift_version="4.8"
 openshift_full_version="4.8"
@@ -75,16 +81,8 @@ registry_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.
 dns_host host=10.198.7.130  upstream_dns=1.1.1.1 
 ntp_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
-[bastions]
+[bastion]
 bastion ansible_ssh_user=root ansible_ssh_host=10.198.7.130
-
-[localhost]
-ansible_host=localhost ansible_connection=local 
-[localhost:vars]
-ansible_python_interpreter=/usr/bin/python3
-[manage_token]
-bastion_token ansible_ssh_user=root ansible_ssh_host=10.198.7.130
-
 
 # 3 masters nodes are mandatory, workers nodes are optional
 # each node must be identify with an unique name and the following paratmers
@@ -94,7 +92,9 @@ bastion_token ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
 # Master nodes
 [masters]
-server08 bmc_address=10.198.0.64 mac=3c:fd:fe:b4:d1:3c ip=10.198.7.134
+server03 bmc_address=10.198.0.69 mac=7c:d3:0a:66:0e:0d ip=10.198.7.164
+vco-worker-4 bmc_address=10.198.0.70 mac=7c:d3:0a:65:f1:c5 ip=10.198.7.165
+vco-worker-5 bmc_address=10.198.0.71 mac=7c:d3:0a:65:f4:55 ip=10.198.7.166
 
 [masters:vars]
 role=master
@@ -109,3 +109,5 @@ dns=1.1.1.1
 [workers]
 
 [workers:vars]
+
+

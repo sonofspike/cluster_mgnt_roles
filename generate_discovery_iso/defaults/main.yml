@@ -19,7 +19,7 @@ API_TOKEN: "{{ api_token }}"
 SSH_PUBLIC_KEY: ""
 DOWNLOAD_DEST_PATH: "/tmp"
 DOWNLOAD_DEST_FILE: "discovery.iso"
-
+IMAGE_TYPE: "{{ IMAGE_TYPE }}"
 #HTTP_STORE_HOST: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 #HTTP_STORE_PORT: 8888
 #URL_HTTP_STORE_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ HTTP_STORE_HOST }}:{{ HTTP_STORE_PORT }}"

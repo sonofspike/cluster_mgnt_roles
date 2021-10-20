@@ -1,18 +1,15 @@
 ---
 # tasks file for monitor_cluster
-
-# Monitor cluster installation
 - name: Wait for 60 min until the cluster is installed
-  uri:
+  sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "json"
-    status_code: [200, 201]
-    return_content: True
-  register: cluster
-  until: cluster.json.status in ['installed', 'error', 'cancelled']
+    method: "GET"
+    query: None
+    data: {}
+    access_token: "{{ access_token }}"
+    api_token: "{{ api_token }}"
+  register: response
+  until: response.json.status in ['installed', 'error', 'cancelled']
   retries: 60
   delay: 60
   delegate_to: bastion

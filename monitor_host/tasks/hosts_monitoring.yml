@@ -1,23 +1,17 @@
 ---
 # tasks file for hosts_monitoring
-#- include_role: 
-#     name: sonofspike.ocm.get_token
-#     apply:
-#       delegate_to: bastion 
-
 - name: Wait for 60 min until the node {{ host_name }} reboots
-  uri:
+  sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ host_id }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ access_token }}"
-      Content-Type: "application/json"
-    status_code: [200, 201]
-    return_content: True
-  register: host
-  until: (host.json.progress.current_stage == 'Rebooting' and host.json.status == 'installing-pending-user-action')
+    method: "GET"
+    query: None
+    data: {}
+    access_token: "{{ access_token }}"
+    api_token: "{{ api_token }}"
+  register: response
+  until: (response.json.progress.current_stage == 'Rebooting' and response.json.status == 'installing-pending-user-action')
          or
-         host.json.progress.current_stage in ['Configuring', 'Done']
+         response.json.progress.current_stage in ['Configuring', 'Done']
   retries: 60
   delay: 60
 

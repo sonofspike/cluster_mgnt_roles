@@ -33,6 +33,7 @@
         validate_certs: no
         return_content: yes
       register: redfish_reply
+      when: eject | bool == True
 
     - debug:
         var: redfish_reply
