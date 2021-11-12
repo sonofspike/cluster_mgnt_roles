@@ -1,3 +1,10 @@
+> :heavy_exclamation_mark: *Attention this repository is being deprecated after PR#67, please refer to
+> https://github.com/redhat-partner-solutions/crucible for official support.*
+
+
+
+
+
 # OpenShift 4 Management Cluster Seed Playbook
 
 > :heavy_exclamation_mark: *Red Hat does not provide commercial support for the content of this repo*
