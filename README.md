@@ -1,5 +1,5 @@
-> :heavy_exclamation_mark: *Attention this repository is being deprecated after PR#67, please refer to
-> https://github.com/redhat-partner-solutions/crucible for official support.*
+> :heavy_exclamation_mark: #Attention this repository is being deprecated after PR#67, please refer to
+> https://github.com/redhat-partner-solutions/crucible for official support.
 
 
 
