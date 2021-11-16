@@ -1,9 +1,10 @@
-# ATTENTION this repository is being deprecated after PR#67*
-# Please refer to https://github.com/redhat-partner-solutions/crucible for official support.
+# ATTENTION this repository is being deprecated
+# Please refer to https://github.com/redhat-partner-solutions/crucible going forward.
 
 ```bash
 ##############################################################################
-ANY FUTURE SUPPORT FOR THIS REPO WILL BE ENDED, THE NEW CONTENT OF THIS REPO WILL BE ADDED TO CRUCIBLE
+DEVELOPMENT FOR THIS REPO WILL BE ENDED, FUTHER DEVELOPMENT WILL CONTINUE IN 
+THE CRUCIBLE REPO
 
 ##############################################################################
 ```
