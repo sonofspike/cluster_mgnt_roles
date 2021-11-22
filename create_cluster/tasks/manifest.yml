@@ -3,28 +3,23 @@
 
 - name: Load manifest
   set_fact:
-    manifest: "{{ lookup('template', '{{ item }}.j2' ) }}"
+    manifest: "{{ lookup('template', '{{ item }}.j2' )  | from_yaml | to_json(ensure_ascii=False) | string }}"
   when: manifests | bool == True
 
 - debug:
     var: manifest
   when: debug and manifests  | bool == True
 
-- name: Apply manifest
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
-    method: POST
-    status_code: [201]
-    return_content: True
-    body_format: json
-    body: {
-      "folder": "manifests",
-      "file_name": "{{ item }}",
-      "content": "{{ manifest | string | b64encode }}"
-    }
-  when: manifests | bool == True
-  register: http_reply
-
+- name: apply manifest
+  sonofspike.ocm.apply_manifest:
+    manifest: "manifests"
+    file_name: "{{ item }}"
+    content: "{{ manifest | string | b64encode }}"
+    url_apply_manifest: "{{ URL_ASSISTED_INSTALLER_CLUSTERS }}/{{ cluster_id }}/manifests"
+    api_token: "{{ API_TOKEN}}"
+    access_token: "{{ access_token }}"
+  register: response
+  
 - debug:
-    var: http_reply
+    var: response
   when: debug and manifests  | bool == True

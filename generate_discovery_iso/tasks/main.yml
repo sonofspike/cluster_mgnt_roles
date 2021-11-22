@@ -11,45 +11,57 @@
     - "{{ groups['masters'] }}"
     - "{{ groups['workers'] | default([]) }}"
 
-- name: Generate a new discovery ISO
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
-    method: POST
-    url_username: "{{ HTTP_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_AUTH_PASSWORD }}"
-    body_format: json
-    status_code: [201]
-    return_content: True
-    body: { "ssh_public_key": "{{ ssh_public_key }}", "static_ips_config" : "{{ static_ips_config }}", "image_type": "full-iso" }
-  when: generate | bool == True
-  register: http_reply
+- name: Generate a new discovery iso
+  sonofspike.ocm.generate_discovery_iso:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
+    ssh_public_key: "{{ ssh_public_key }}"
+    url_generate_iso: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
+    static_ips_config: "{{ static_ips_config }}"
+    image_type: "{{ IMAGE_TYPE }}"
+  register: response
 
 - debug:
-    var: http_reply.json
+    var: response.result
   when: debug and generate | bool == True
 
 - name: Download discovery ISO
-  get_url:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
-    dest: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
-  when: download | bool == True
-  register: http_reply
-
+  block:
+  - name: get url
+    get_url:
+      url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
+      headers:
+        Authorization: "Bearer {{ access_token }}"
+        Content-Type: "application/json"
+      force_basic_auth: yes 
+      dest: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
+    when: download | bool == True
+    register: http_reply
+  rescue:
+      ## refresh access_token, it is simpler to use ansible module 
+    - import_role:
+        name: sonofspike.ocm.refresh_token
+    - name: Retry url
+      get_url:
+        url: "{{ URL_ASSISTED_INSTALLER_CLUSTERS_DOWNLOAD_IMAGE }}"
+        headers:
+          Authorization: "Bearer {{ access_token }}"
+          Content-Type: "application/json"
+        force_basic_auth: yes 
+        dest: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
+      when: download | bool == True
+      register: http_reply
+  
 - debug:
     var: http_reply.status_code
-  when: debug and download | bool == True
-
-- name: Upload discovery ISO
-  uri:
-    url: "{{ URL_HTTP_STORE_UPLOAD_IMAGE }}/{{ CLUSTER_ID }}.iso"
-    method: PUT
-    url_username: "{{ HTTP_STORE_AUTH_USERNAME }}"
-    url_password: "{{ HTTP_STORE_AUTH_PASSWORD }}"
+    
+- name: upload discovery iso
+  sonofspike.ocm.upload_discovery_iso:
+    access_token: "{{ access_token }}"
+    api_token: "{{ API_TOKEN }}"
     src: "{{ DOWNLOAD_DEST_PATH }}/{{ DOWNLOAD_DEST_FILE }}"
-    status_code: [200]
+    url_upload_discovery_iso: "{{ URL_HTTP_STORE_UPLOAD_IMAGE }}/{{ CLUSTER_ID }}.iso"
   when: upload | bool == True
-  register: http_reply
+  register: response
+    
 
-- debug:
-    var: http_reply.status_code
-  when: debug and upload | bool == True

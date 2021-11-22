@@ -1,12 +1,21 @@
 ---
 # file: monitor_cluster.yml
 
+- name: deploy_cluster.yml
+  hosts: bastion
+  gather_facts: True
+  tasks:
+  - name: get token (role)
+    include_role:
+        name: sonofspike.ocm.get_token
+        
 - name: Monitoring hosts installation
   hosts: masters, workers
   gather_facts: False
   strategy: free
   roles:
     - monitor_host
+
   vars:
     - debug: True
     - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
@@ -20,6 +29,8 @@
     - monitor_cluster
   vars:
     - debug: True
+    - token_epoch: "{{ token_epoch }}"
+
     - ASSISTED_INSTALLER_HOST: "{{ hostvars['assisted_installer']['host'] }}"
     - ASSISTED_INSTALLER_PORT: "{{ hostvars['assisted_installer']['port'] }}"
     - CLUSTER_ID: "{{ cluster_id }}"

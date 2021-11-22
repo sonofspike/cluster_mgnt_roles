@@ -1,31 +1,37 @@
+```
 [all:vars]
-
+import=settings.ini
 ###############################################################################
 # Required configuration variables for Assisted Install Installations         #
 ###############################################################################
 
 # Name of the cluster, i.e. openshift
-cluster_name="ldc-griffintown"
+cluster_name="sno"
+
+URL_API_TOKEN="https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+
+#install with single node openshift
+SNO=False
 
 # Base DNS domain
-base_dns_domain="rdc-mtl.ran.lan"
+base_dns_domain="sos-mtl.ran.lab"
 
 # Available subnets *
-# 10.198.6.0/24 (10.198.6.1-10.198.6.254)
-machine_network_cidr= "10.198.6.0/24"
+# 10.198.7.128/26 (10.198.7.129-10.198.7.190)
+machine_network_cidr= "10.198.7.128/26"
 
 # Allocate virtual IPs via DHCP server
 vip_dhcp_allocation=False
-
 # API virtual IP
-api_vip="10.198.6.155"
+api_vip="10.198.7.152"
 
 # Ingress virtual IP
-ingress_vip="10.198.6.156"
+ingress_vip="10.198.7.153"
 
 # Cluster network CIDR
 cluster_network_cidr="10.128.0.0/14"
 
+cluster_network_host="10.198.7.163"
 # Cluster network host prefix
 cluster_network_host_prefix=23
 
@@ -41,31 +47,42 @@ ssh_public_key="{{ lookup('file', './ssh_public_key.txt') }}"
 # Load pull-secret file
 pull_secret="{{ lookup('file', './pull_secret.txt') }}"
 
+# Load api token
+api_token="{{ lookup('file', './api_token.txt') }}"
+
+feature="{{ lookup('file', './feature.txt') }}"
+
+ASSISTED_INSTALLER_BASE_URL="https://api.openshift.com/api/assisted-install/v1"
+
 # Load cluster file, this is generated automatically
 cluster_id="{{ lookup('file', './cluster.txt') }}"
 
+#discovery iso image type
+IMAGE_TYPE="minimal-iso"
+
 # Version of the openshift-installer, undefined or empty results in the playbook failing.
-openshift_version="4.6"
+openshift_version="4.8"
+openshift_full_version="4.8"
 
 # Discovery ISO
-discovery_iso_name="discovery_image_ldc-griffintown.iso"
+discovery_iso_name="discovery-image-{{ openshift_full_version }}.iso"
 # HTTP server where the ISO is stored
-discovery_iso_server="http://10.198.6.70:8080"
+discovery_iso_server="http://10.198.7.130:8080"
 
 # Parameters for a Restricted Network installation
 use_mirror= False
 mirror_certificate="{{ lookup('file', './mirror_certificate.txt') }}"
-mirror_registry=infra.ldc-griffintown.rdc-mtl.ran.lan:5000
+mirror_registry=ran-infra.vco.kaloom.io:5000
 
 [services]
-assisted_installer host=10.198.6.70 port=8090
-http_store host=10.198.6.70 port=8080
+assisted_installer host=10.198.7.130 port=8090 ansible_ssh_user=root ansible_ssh_host=10.198.7.130
+http_store host=10.198.7.130 port=8080
+registry_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.130  cert_country=US cert_state=NC cert_locality=Raleigh cert_organization="Red Hat, Inc." cert_organizational_unit=Lab
+dns_host host=10.198.7.130  upstream_dns=1.1.1.1 
+ntp_host host=10.198.7.130 ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
-[bastions]
-#home ansible_ssh_user=root ansible_ssh_host=192.168.20.20
-bastion ansible_ssh_user=root ansible_ssh_host=10.198.6.70
-#supermicro-infra ansible_ssh_user=ran ansible_ssh_host=172.24.118.250
-#rhpool-infra ansible_ssh_user=root ansible_ssh_host=10.1.196.40
+[bastion]
+bastion ansible_ssh_user=root ansible_ssh_host=10.198.7.130
 
 # 3 masters nodes are mandatory, workers nodes are optional
 # each node must be identify with an unique name and the following paratmers
@@ -75,30 +92,22 @@ bastion ansible_ssh_user=root ansible_ssh_host=10.198.6.70
 
 # Master nodes
 [masters]
-master0-ldc-griffintown bmc_address=10.198.6.63:8000 mac=3c:fd:fe:78:ab:00 ip=10.198.6.30
-master1-ldc-griffintown bmc_address=10.198.6.63:8000 mac=3c:fd:fe:78:ab:01 ip=10.198.6.31
-master2-ldc-griffintown bmc_address=10.198.6.63:8000 mac=3c:fd:fe:78:ab:02 ip=10.198.6.32
+server03 bmc_address=10.198.0.69 mac=7c:d3:0a:66:0e:0d ip=10.198.7.164
+vco-worker-4 bmc_address=10.198.0.70 mac=7c:d3:0a:65:f1:c5 ip=10.198.7.165
+vco-worker-5 bmc_address=10.198.0.71 mac=7c:d3:0a:65:f4:55 ip=10.198.7.166
 
 [masters:vars]
 role=master
-vendor=KVM
+vendor=Lenovo
 bmc_user=USERID
 bmc_password=PASSW0RD
-mask=24
-gateway=10.198.6.1
+mask=26
+gateway=10.198.7.129
 dns=1.1.1.1
 
 # Worker nodes
 [workers]
-server64 bmc_address=10.198.0.64 mac=3c:fd:fe:b4:d1:3c ip=10.198.6.64
-server65 bmc_address=10.198.0.65 mac=3c:fd:fe:d4:e6:00 ip=10.198.6.65
-server66 bmc_address=10.198.0.66 mac=3c:fd:fe:b4:d3:e4 ip=10.198.6.66
 
 [workers:vars]
-role=worker 
-vendor=Lenovo
-bmc_user=USERID
-bmc_password=PASSW0RD
-mask=24
-gateway=10.198.6.1
-dns=1.1.1.1
+
+

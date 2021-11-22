@@ -1,13 +1,18 @@
 ---
 # tasks file for monitor_cluster
-
+- import_role:
+    name: sonofspike.ocm.get_token
+  delegate_to: bastion
+  
 - name : Get cluster status during installation
-  uri:
+  sonofspike.ocm.rest_api_call:
     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
-    method: GET
-    status_code: [200, 201]
-    return_content: True
-  register: cluster
+    method: "GET"
+    data: {}
+    query: None
+    access_token: "{{ access_token }}"
+    api_token: "{{ api_token }}"
+  register: response
   delegate_to: bastion
 
 - name: Identify the host
@@ -15,6 +20,7 @@
     current_host: "{{ item }}"
   loop: "{{ cluster.json.hosts }}"
   when: item.requested_hostname == inventory_hostname
+  
   no_log: True
 
 - name: Start host monitoring

@@ -9,4 +9,5 @@ imageContentSources:
   - {{ mirror_registry }}/ocpmetal
   source: quay.io/ocpmetal
 additionalTrustBundle: |
-{{ mirror_certificate }}
+{{ mirror_certificate.split("\n") | map("regex_replace", "^(?!\s{4})", "    ") | list | join("\n") }}
+sshKey: {{ ssh_public_key }}
